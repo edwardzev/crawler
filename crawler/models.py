@@ -5,7 +5,9 @@ from datetime import datetime
 class Product(BaseModel):
     """Canonical Product Schema"""
     supplier: str
+    supplier: str
     url: HttpUrl
+    url_clean: Optional[str] = None
     title: str
     sku: Optional[str] = None
     category_path: List[str] = Field(default_factory=list)

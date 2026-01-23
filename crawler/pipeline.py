@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any
 import logging
 from crawler.models import Product
-from crawler.utils import generate_id
+from crawler.utils import normalize_url, generate_product_id, generate_content_hash
 
 logger = logging.getLogger(__name__)
 
@@ -17,25 +17,41 @@ class DataPipeline:
     def _init_db(self):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
-        # Schema matching Product model
-        c.execute('''CREATE TABLE IF NOT EXISTS products
-                     (product_id TEXT PRIMARY KEY,
-                      supplier TEXT,
-                      url TEXT,
-                      title TEXT,
-                      sku TEXT,
-                      category_path TEXT,
-                      description TEXT,
-                      properties TEXT,
-                      images TEXT,
-                      price REAL,
-                      currency TEXT,
-                      availability TEXT,
-                      variants TEXT,
-                      raw TEXT,
-                      content_hash TEXT,
-                      first_seen_at TIMESTAMP,
-                      last_seen_at TIMESTAMP)''')
+        
+        # Check if table exists
+        c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='products'")
+        if not c.fetchone():
+            # Initial create
+            c.execute('''CREATE TABLE products
+                         (product_id TEXT PRIMARY KEY,
+                          supplier TEXT,
+                          url TEXT,
+                          url_clean TEXT,
+                          title TEXT,
+                          sku TEXT,
+                          category_path TEXT,
+                          description TEXT,
+                          properties TEXT,
+                          images TEXT,
+                          price REAL,
+                          currency TEXT,
+                          availability TEXT,
+                          variants TEXT,
+                          raw TEXT,
+                          content_hash TEXT,
+                          first_seen_at TIMESTAMP,
+                          last_seen_at TIMESTAMP)''')
+            c.execute("CREATE INDEX IF NOT EXISTS idx_url_clean ON products(url_clean)")
+            c.execute("CREATE INDEX IF NOT EXISTS idx_supplier ON products(supplier)")
+        else:
+            # Check for column updates
+            c.execute("PRAGMA table_info(products)")
+            columns = [row[1] for row in c.fetchall()]
+            if 'url_clean' not in columns:
+                logger.info("Migrating DB: Adding url_clean column")
+                c.execute("ALTER TABLE products ADD COLUMN url_clean TEXT")
+                c.execute("CREATE INDEX IF NOT EXISTS idx_url_clean ON products(url_clean)")
+                
         conn.commit()
         conn.close()
         
@@ -46,14 +62,18 @@ class DataPipeline:
             item_data['first_seen_at'] = now
             item_data['last_seen_at'] = now
             
-            # Generate ID based on URL or SKU+Supplier
-            # Using URL hash for simplicity as primary key for now
-            url = item_data.get('url', '')
-            item_data['product_id'] = generate_id(url)
+            # 1. URL Normalization
+            raw_url = item_data.get('url', '')
+            clean_url = normalize_url(raw_url)
+            item_data['url_clean'] = clean_url
             
-            # Content hash to check changes
-            content_str = json.dumps(item_data, sort_keys=True, default=str)
-            item_data['content_hash'] = generate_id(content_str)
+            # 2. Stable Product ID (Supplier + SKU/URL)
+            supplier = item_data.get('supplier', 'Unknown')
+            sku = item_data.get('sku')
+            item_data['product_id'] = generate_product_id(supplier, sku, clean_url)
+            
+            # 3. Stable Content Hash (Excluding timestamps)
+            item_data['content_hash'] = generate_content_hash(item_data)
             
             # Validate with Pydantic
             product = Product(**item_data)
@@ -76,6 +96,8 @@ class DataPipeline:
         data['variants'] = json.dumps(data['variants'], ensure_ascii=False)
         data['raw'] = json.dumps(data['raw'], ensure_ascii=False)
         data['url'] = str(data['url'])
+        if data.get('url_clean'):
+             data['url_clean'] = str(data['url_clean'])
         
         # Upsert
         keys = list(data.keys())
@@ -93,13 +115,106 @@ class DataPipeline:
                     title=excluded.title,
                     sku=excluded.sku,
                     description=excluded.description,
-                    images=excluded.images
+                    images=excluded.images,
+                    url_clean=excluded.url_clean
                     """
         
         c.execute(query, list(data.values()))
         conn.commit()
         conn.close()
         
+    def run_migration(self):
+        """
+        One-time migration to:
+        1. Backfill url_clean
+        2. Recalculate all product_ids
+        3. Deduplicate based on new IDs
+        """
+        logger.info("Starting Database Migration & Deduplication...")
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        
+        # Load all existing rows
+        c.execute("SELECT * FROM products")
+        rows = c.fetchall()
+        logger.info(f"Loaded {len(rows)} rows for processing.")
+        
+        # In-memory deduplication: {new_product_id: row_data}
+        deduped_map = {}
+        
+        for row in rows:
+            data = dict(row)
+            
+            # Recalculate key fields
+            raw_url = data.get('url', '')
+            clean_url = normalize_url(raw_url)
+            supplier = data.get('supplier', 'Unknown')
+            sku = data.get('sku')
+            
+            new_id = generate_product_id(supplier, sku, clean_url)
+            
+            # Check conflict
+            if new_id in deduped_map:
+                existing = deduped_map[new_id]
+                # Compare timestamps (ISO strings)
+                new_ts = data.get('last_seen_at') or ''
+                old_ts = existing.get('last_seen_at') or ''
+                if new_ts > old_ts:
+                    # Replace with newer
+                    data['product_id'] = new_id
+                    data['url_clean'] = clean_url
+                    deduped_map[new_id] = data
+            else:
+                data['product_id'] = new_id
+                data['url_clean'] = clean_url
+                deduped_map[new_id] = data
+                
+        logger.info(f"Deduplication complete. Retaining {len(deduped_map)} unique records.")
+        
+        # Create temp table
+        c.execute("DROP TABLE IF EXISTS products_new")
+        c.execute('''CREATE TABLE products_new
+                     (product_id TEXT PRIMARY KEY,
+                      supplier TEXT,
+                      url TEXT,
+                      url_clean TEXT,
+                      title TEXT,
+                      sku TEXT,
+                      category_path TEXT,
+                      description TEXT,
+                      properties TEXT,
+                      images TEXT,
+                      price REAL,
+                      currency TEXT,
+                      availability TEXT,
+                      variants TEXT,
+                      raw TEXT,
+                      content_hash TEXT,
+                      first_seen_at TIMESTAMP,
+                      last_seen_at TIMESTAMP)''')
+                      
+        # Insert deduped data
+        items = list(deduped_map.values())
+        if items:
+            keys = list(items[0].keys())
+            columns = ",".join(keys)
+            placeholders = ",".join(["?"] * len(keys))
+            query = f"INSERT INTO products_new ({columns}) VALUES ({placeholders})"
+            
+            batch = [list(item.values()) for item in items]
+            c.executemany(query, batch)
+            
+        # Swap tables
+        c.execute("DROP TABLE products")
+        c.execute("ALTER TABLE products_new RENAME TO products")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_url_clean ON products(url_clean)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_supplier ON products(supplier)")
+        
+        conn.commit()
+        conn.close()
+        logger.info("Migration successful.")
+
     def export_data(self, output_path: str, fmt: str = "csv"):
         import pandas as pd
         
@@ -147,6 +262,16 @@ class DataPipeline:
                     except:
                         return val
                 df[col] = df[col].apply(clean_json)
+
+        # Ensure order includes url_clean if present
+        if 'url_clean' in df.columns:
+             # Reorder to put url_clean near url
+             cols = df.columns.tolist()
+             if 'url' in cols and 'url_clean' in cols:
+                 cols.remove('url_clean')
+                 url_idx = cols.index('url')
+                 cols.insert(url_idx + 1, 'url_clean')
+                 df = df[cols]
 
         if fmt == "json":
             df.to_json(output_path, orient="records", indent=2, date_format="iso")

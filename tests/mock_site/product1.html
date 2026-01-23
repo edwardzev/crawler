@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Super Widget 3000 - Product Details</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "Super Widget 3000",
+      "image": [
+        "https://example.com/photos/1x1/photo.jpg"
+      ],
+      "description": "The best widget in the world.",
+      "sku": "SW-3000",
+      "brand": {
+        "@type": "Brand",
+        "name": "Acme"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "http://localhost:8000/product1.html",
+        "priceCurrency": "USD",
+        "price": "119.99",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+</head>
+
+<body>
+    <h1>Super Widget 3000</h1>
+    <div class="sku">SKU: SW-3000</div>
+    <div class="price">$119.99</div>
+    <div class="description">This is the long description of the widget.</div>
+    <img src="widget.jpg" class="product-image" />
+    <table class="specs">
+        <tr>
+            <th>Weight</th>
+            <td>1.5 kg</td>
+        </tr>
+        <tr>
+            <th>Color</th>
+            <td>Red</td>
+        </tr>
+    </table>
+</body>
+
+</html>

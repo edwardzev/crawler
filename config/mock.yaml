@@ -1,0 +1,20 @@
+supplier: "MockSupplier"
+base_url: "http://localhost:8000/index.html"
+allowed_domains:
+  - "localhost"
+  - "localhost:8000"
+  - "127.0.0.1"
+
+category_url_patterns:
+  - "category"
+
+product_url_patterns:
+  - "product"
+
+selectors:
+  title: "h1"
+  sku: ".sku"
+  price: ".price"
+  description: ".description"
+  images: "img.product-image::src"
+  properties: ".specs tr"

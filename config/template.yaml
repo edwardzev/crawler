@@ -1,0 +1,23 @@
+supplier: "SupplierA"
+base_url: "https://supplierA.com"
+allowed_domains:
+  - "supplierA.com"
+
+category_url_patterns:
+  - "/category/"
+product_url_patterns:
+  - "/product/"
+
+js_required: true
+
+pagination:
+  type: "next_button"
+  selector: "a.next"
+
+selectors:
+  title: "h1"
+  sku: ".sku"
+  price: ".price"
+  breadcrumb: ".breadcrumb a"
+  images: ".product-gallery img"
+  properties_table: ".specs tr"

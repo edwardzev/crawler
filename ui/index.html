@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawler Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .terminal {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <!-- Navbar -->
+    <nav
+        class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center bg-opacity-80 backdrop-blur-md sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+            <h1 class="text-xl font-bold tracking-tight">Crawler<span class="text-blue-500">Dashboard</span></h1>
+        </div>
+        <div id="status-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-gray-300">
+            OFFLINE
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Controls & Stats -->
+        <div class="lg:col-span-1 space-y-6">
+
+            <!-- Stats -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                <h2 class="text-sm uppercase tracking-wide text-slate-400 mb-4 font-semibold">Live Stats</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-700/50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-white mb-1" id="stat-total">0</div>
+                        <div class="text-xs text-slate-400">Total Items</div>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-blue-400 mb-1" id="stat-unique">0</div>
+                        <div class="text-xs text-slate-400">Unique SKUs</div>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-green-400 mb-1" id="stat-price">0</div>
+                        <div class="text-xs text-slate-400">With Price</div>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-purple-400 mb-1" id="stat-category">0</div>
+                        <div class="text-xs text-slate-400">With Category</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                <h2 class="text-sm uppercase tracking-wide text-slate-400 mb-4 font-semibold">Control Panel</h2>
+
+                <div class="mb-4">
+                    <label class="block text-xs text-slate-400 mb-2">Configuration File</label>
+                    <select id="config-select"
+                        class="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-blue-500 transition">
+                        <!-- Options populated via JS -->
+                    </select>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button id="btn-start"
+                        class="flex-1 bg-green-600 hover:bg-green-500 text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-green-900/20 flex justify-center items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Start Crawl
+                    </button>
+                    <button id="btn-stop"
+                        class="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-red-900/20 flex justify-center items-center opacity-50 cursor-not-allowed">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Stop
+                    </button>
+                </div>
+            </div>
+
+            <!-- Config Editor -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm uppercase tracking-wide text-slate-400 font-semibold">Config Editor</h2>
+                    <button id="btn-save"
+                        class="text-xs bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded transition">Save</button>
+                </div>
+                <textarea id="config-editor"
+                    class="w-full bg-slate-900 text-slate-300 font-mono text-xs p-4 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500 h-64 resize-none transition"
+                    spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- Right Column: Logs -->
+        <div class="lg:col-span-2">
+            <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg h-full flex flex-col overflow-hidden"
+                style="min-height: 600px;">
+                <div
+                    class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/80 backdrop-blur">
+                    <h2 class="text-sm uppercase tracking-wide text-slate-400 font-semibold">Live Logs</h2>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-xs text-slate-500">Real-time</span>
+                    </div>
+                </div>
+                <!-- Log Terminal -->
+                <div id="log-container"
+                    class="terminal flex-1 p-6 overflow-y-auto text-xs leading-relaxed whitespace-pre-wrap">Waiting for
+                    logs...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const api = {
+            get: (url) => fetch(url).then(r => r.json()),
+            post: (url, body) => fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }).then(r => r.json()),
+            getParams: (url, params) => fetch(`${url}?${new URLSearchParams(params)}`).then(r => r.text()) // logs return text
+        };
+
+        const els = {
+            statusBadge: document.getElementById('status-badge'),
+            statTotal: document.getElementById('stat-total'),
+            statUnique: document.getElementById('stat-unique'),
+            statPrice: document.getElementById('stat-price'),
+            statCategory: document.getElementById('stat-category'),
+            btnStart: document.getElementById('btn-start'),
+            btnStop: document.getElementById('btn-stop'),
+            configSelect: document.getElementById('config-select'),
+            configEditor: document.getElementById('config-editor'),
+            btnSave: document.getElementById('btn-save'),
+            logContainer: document.getElementById('log-container')
+        };
+
+        let isRunning = false;
+        let autoScroll = true;
+
+        // Load configs
+        async function loadConfigs() {
+            const data = await api.get('/api/configs');
+            els.configSelect.innerHTML = data.files.map(f => `<option value="${f}">${f}</option>`).join('');
+            // Load first config content
+            if (data.files.length) loadConfigContent(data.files[0]);
+        }
+
+        async function loadConfigContent(filename) {
+            try {
+                const data = await api.get(`/api/config/${encodeURIComponent(filename)}`);
+                els.configEditor.value = data.content;
+            } catch (e) {
+                console.error("Failed to load config", e);
+            }
+        }
+
+        els.configSelect.addEventListener('change', (e) => loadConfigContent(e.target.value));
+
+        els.btnSave.addEventListener('click', async () => {
+            const filename = els.configSelect.value;
+            const content = els.configEditor.value;
+            await api.post('/api/config', { filename, content });
+            alert('Config saved!');
+        });
+
+        els.btnStart.addEventListener('click', async () => {
+            if (isRunning) return;
+            const config_file = els.configSelect.value;
+            const res = await api.post('/api/start', { config_file });
+            if (res.status === 'started') updateStatus();
+            else alert(res.message);
+        });
+
+        els.btnStop.addEventListener('click', async () => {
+            if (!isRunning) return;
+            if (confirm('Stop current crawl?')) {
+                const res = await api.post('/api/stop', {});
+                if (res.status === 'stopped') updateStatus();
+            }
+        });
+
+        // Auto-scroll logic
+        els.logContainer.addEventListener('scroll', () => {
+            const diff = els.logContainer.scrollHeight - els.logContainer.scrollTop - els.logContainer.clientHeight;
+            autoScroll = diff < 50;
+        });
+
+        async function updateStatus() {
+            try {
+                const data = await api.get('/api/status');
+                isRunning = data.running;
+
+                // UI Updates
+                if (isRunning) {
+                    els.statusBadge.textContent = `RUNNING (PID ${data.pid})`;
+                    els.statusBadge.classList.replace('bg-gray-700', 'bg-green-600');
+                    els.statusBadge.classList.replace('text-gray-300', 'text-white');
+                    els.statusBadge.classList.add('animate-pulse');
+
+                    els.btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                    els.btnStop.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    els.statusBadge.textContent = 'OFFLINE';
+                    els.statusBadge.classList.replace('bg-green-600', 'bg-gray-700');
+                    els.statusBadge.classList.replace('text-white', 'text-gray-300');
+                    els.statusBadge.classList.remove('animate-pulse');
+
+                    els.btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                    els.btnStop.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                // Stats
+                // Animate numbers
+                els.statTotal.textContent = data.product_count.toLocaleString();
+                els.statUnique.textContent = data.unique_skus.toLocaleString();
+                els.statPrice.textContent = data.has_price.toLocaleString();
+                els.statCategory.textContent = data.has_category.toLocaleString();
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function updateLogs() {
+            try {
+                const text = await api.getParams('/api/logs', { lines: 100 });
+                els.logContainer.textContent = text;
+                if (autoScroll) els.logContainer.scrollTop = els.logContainer.scrollHeight;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Init
+        loadConfigs();
+        updateStatus();
+        updateLogs();
+
+        // Polling
+        setInterval(updateStatus, 2000);
+        setInterval(updateLogs, 1000);
+
+    </script>
+</body>
+
+</html>

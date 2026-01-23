@@ -1,0 +1,9 @@
+playwright
+selectolax
+pydantic
+pandas
+openpyxl
+tenacity
+requests
+sqlalchemy
+PyYAML

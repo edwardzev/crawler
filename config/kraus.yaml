@@ -1,0 +1,23 @@
+supplier: "Kraus"
+base_url: "https://kraus.org.il"
+allowed_domains:
+  - "kraus.org.il"
+  - "www.kraus.org.il"
+
+category_url_patterns:
+  - "/product-category/"
+  - "/shop/"
+
+product_url_patterns:
+  - "/product/"
+
+js_required: true
+
+selectors:
+  title: "h1.product_title"
+  sku: ".sku"
+  price: ".woocommerce-Price-amount.amount"
+  breadcrumb: ".product_meta .posted_in a"
+  images: ".woocommerce-product-gallery__image img::data-large_image"
+  description: ".woocommerce-product-details__short-description"
+  properties: "table.shop_attributes tr" 

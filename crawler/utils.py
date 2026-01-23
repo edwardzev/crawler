@@ -99,3 +99,36 @@ def generate_content_hash(data: dict) -> str:
     
     return hashlib.sha256(content_str.encode('utf-8')).hexdigest()
 
+def slugify(text: str) -> str:
+    """
+    Generate SEO-friendly slug.
+    - Lowercase
+    - Preserves Hebrew/Unicode
+    - Replaces spaces with hyphens
+    - Removes unsafe characters
+    """
+    if not text:
+        return ""
+        
+    # Lowercase
+    slug = text.lower()
+    
+    # Replace spaces with hyphens
+    slug = slug.replace(' ', '-')
+    
+    # Remove unsafe characters: / \ ? # % &
+    # Also removing * " ' ( ) [ ] { } < > | ^ ~ ` , ; : @ = + $
+    unsafe_chars = r'[\\/?#%&*"\'()\[\]{}<>|^~`,;: @=+$]'
+    slug = re.sub(unsafe_chars, '', slug)
+    
+    # Remove dots although they are technically safe, usually ugly in URLs
+    slug = slug.replace('.', '')
+    
+    # Collapse multiple hyphens
+    slug = re.sub(r'-+', '-', slug)
+    
+    # Trim hyphens from ends
+    slug = slug.strip('-')
+    
+    return slug
+

@@ -83,7 +83,10 @@ class FrontendExporter:
         search_blob = " ".join([str(p) for p in search_parts if p])
         
         return {
-            "id": raw.get('product_id'),
+            "id": raw.get('catalog_id') or raw.get('product_id'), # Prefer new ID
+            "catalog_id": raw.get('catalog_id'),
+            "sku_clean": raw.get('sku_clean'),
+            "supplier_slug": raw.get('supplier_slug'),
             "supplier": raw.get('supplier'),
             "url": raw.get('url'),
             "url_clean": raw.get('url_clean'),

@@ -9,7 +9,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
     return (
         <div className="group flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md">
-            <Link href={`/p/${product.id}/${product.slug}`} className="aspect-square w-full overflow-hidden bg-gray-100 relative">
+            <Link href={`/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`} className="aspect-square w-full overflow-hidden bg-gray-100 relative">
                 {product.image_main ? (
                     <img
                         src={product.image_main}
@@ -29,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
                         {product.supplier}
                     </span>
                 </div>
-                <Link href={`/p/${product.id}/${product.slug}`} className="mb-2 block flex-1">
+                <Link href={`/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`} className="mb-2 block flex-1">
                     <h3 className="line-clamp-2 text-lg font-medium text-gray-900 group-hover:text-blue-600">
                         {product.title}
                     </h3>

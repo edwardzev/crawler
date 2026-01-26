@@ -57,10 +57,19 @@ class CrawlerEngine:
     def _process_url(self, url: str):
         logger.info(f"Processing: {url}")
         
-        # Determine if we need dynamic fetching (simple check for now)
-        # In real logic, might depend on config keys or failures
+        # Determine if we need dynamic fetching
+        use_dynamic = self.config.get("use_dynamic", False)
+        
         try:
-            html = self.fetcher.fetch(url) # Start with static
+            html = None
+            if not use_dynamic:
+                html = self.fetcher.fetch(url)
+                
+            # Fallback to dynamic if static failed (e.g. 403) or if configured
+            if not html:
+                logger.info(f"Trying dynamic fetch for {url}")
+                html = self.fetcher.fetch_dynamic(url)
+            
             if not html: 
                 logger.warning(f"Failed to fetch {url}")
                 return

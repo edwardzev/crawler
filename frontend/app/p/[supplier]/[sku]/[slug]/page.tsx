@@ -6,23 +6,33 @@ import { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { ImageGallery } from "@/components/ImageGallery";
 import Link from "next/link";
+import { OrderSummary } from "@/components/OrderSummary";
 
 type Props = {
-    params: Promise<{ id: string; slug: string }>;
+    params: Promise<{ supplier: string; sku: string; slug: string }>;
 };
 
 export async function generateStaticParams() {
     const products = await getProducts();
-    return products.map((product) => ({
-        id: String(product.id),
-        slug: product.slug, // ensure slug is url encoded if needed, but nextjs handles it
-    }));
+    // Path: /p/[supplier]/[sku]/[slug]
+    // Filter out items without complete ID info (should be none post-migration)
+    return products
+        .filter(p => p.supplier_slug && p.sku_clean)
+        .map((product) => ({
+            supplier: String(product.supplier_slug),
+            sku: String(product.sku_clean),
+            slug: String(product.slug),
+        }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { id } = await params;
+    const { supplier, sku } = await params;
     const products = await getProducts();
-    const product = products.find((p) => String(p.id) === id);
+
+    // Find by composite key
+    const product = products.find(
+        (p) => p.supplier_slug === supplier && p.sku_clean === sku
+    );
 
     if (!product) {
         return { title: "Product Not Found" };
@@ -38,9 +48,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-    const { id } = await params;
+    const { supplier, sku } = await params;
     const products = await getProducts();
-    const product = products.find((p) => String(p.id) === id);
+
+    // Find by composite key
+    const product = products.find(
+        (p) => p.supplier_slug === supplier && p.sku_clean === sku
+    );
 
     if (!product) {
         return <div className="p-10 text-center">מוצר לא נמצא</div>;
@@ -70,6 +84,11 @@ export default async function ProductPage({ params }: Props) {
                         {/* Gallery Section */}
                         <div className="bg-gray-100 p-8">
                             <ImageGallery images={product.images} title={product.title} />
+
+                            {/* Mockup Editor (Dynamic load) */}
+                            <div className="mt-8">
+                                <MockupLoader product={product} />
+                            </div>
                         </div>
 
                         {/* Details Section */}
@@ -130,6 +149,10 @@ export default async function ProductPage({ params }: Props) {
                     </div>
                 </div>
             </div>
+
+            <OrderSummary />
         </div>
     );
 }
+
+import MockupLoader from '@/components/MockupLoader';

@@ -21,9 +21,12 @@ class DataPipeline:
         # Check if table exists
         c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='products'")
         if not c.fetchone():
-            # Initial create
+            # Initial create with new schema
             c.execute('''CREATE TABLE products
-                         (product_id TEXT PRIMARY KEY,
+                         (catalog_id TEXT PRIMARY KEY,
+                          product_id TEXT,
+                          supplier_slug TEXT,
+                          sku_clean TEXT,
                           supplier TEXT,
                           url TEXT,
                           url_clean TEXT,
@@ -43,14 +46,24 @@ class DataPipeline:
                           last_seen_at TIMESTAMP)''')
             c.execute("CREATE INDEX IF NOT EXISTS idx_url_clean ON products(url_clean)")
             c.execute("CREATE INDEX IF NOT EXISTS idx_supplier ON products(supplier)")
+            c.execute("CREATE INDEX IF NOT EXISTS idx_catalog_lookup ON products(supplier_slug, sku_clean)")
         else:
             # Check for column updates
             c.execute("PRAGMA table_info(products)")
             columns = [row[1] for row in c.fetchall()]
-            if 'url_clean' not in columns:
-                logger.info("Migrating DB: Adding url_clean column")
-                c.execute("ALTER TABLE products ADD COLUMN url_clean TEXT")
-                c.execute("CREATE INDEX IF NOT EXISTS idx_url_clean ON products(url_clean)")
+            
+            new_cols = {
+                'catalog_id': 'TEXT',
+                'sku_clean': 'TEXT',
+                'supplier_slug': 'TEXT'
+            }
+            
+            for col, dtype in new_cols.items():
+                if col not in columns:
+                    logger.info(f"Migrating DB: Adding {col} column")
+                    c.execute(f"ALTER TABLE products ADD COLUMN {col} {dtype}")
+            
+            # Note: Changing PRIMARY KEY requires full migration (Done in migrate_identity.py)
                 
         conn.commit()
         conn.close()
@@ -67,9 +80,21 @@ class DataPipeline:
             clean_url = normalize_url(raw_url)
             item_data['url_clean'] = clean_url
             
-            # 2. Stable Product ID (Supplier + SKU/URL)
+            # 2. Identity Generation
             supplier = item_data.get('supplier', 'Unknown')
             sku = item_data.get('sku')
+            
+            if not sku:
+                logger.error(f"SKU Missing for {clean_url}. Skipping ingestion.")
+                return
+
+            from crawler.utils import clean_sku, slugify_supplier, generate_catalog_id
+            
+            item_data['sku_clean'] = clean_sku(sku)
+            item_data['supplier_slug'] = slugify_supplier(supplier)
+            item_data['catalog_id'] = generate_catalog_id(supplier, sku)
+            
+            # Legacy ID
             item_data['product_id'] = generate_product_id(supplier, sku, clean_url)
             
             # 3. Stable Content Hash (Excluding timestamps)
@@ -79,7 +104,7 @@ class DataPipeline:
             product = Product(**item_data)
             
             self._save_to_db(product)
-            logger.info(f"Saved product: {product.title} ({product.product_id})")
+            logger.info(f"Saved product: {product.title} ({product.catalog_id})")
             
         except Exception as e:
             logger.error(f"Validation or Storage error: {e}")
@@ -99,13 +124,17 @@ class DataPipeline:
         if data.get('url_clean'):
              data['url_clean'] = str(data['url_clean'])
         
-        # Upsert
+        # Upsert using catalog_id
         keys = list(data.keys())
         placeholders = ",".join(["?"] * len(keys))
         columns = ",".join(keys)
         
+        # Check if we assume catalog_id is PRIMARY KEY or UNIQUE
+        # If running on old DB before migration, this might fail unless we migrated schema.
+        # But this code is for FUTURE ingestion.
+        
         query = f"""INSERT INTO products ({columns}) VALUES ({placeholders})
-                    ON CONFLICT(product_id) DO UPDATE SET
+                    ON CONFLICT(catalog_id) DO UPDATE SET
                     last_seen_at=excluded.last_seen_at,
                     content_hash=excluded.content_hash,
                     price=excluded.price,
@@ -116,12 +145,18 @@ class DataPipeline:
                     sku=excluded.sku,
                     description=excluded.description,
                     images=excluded.images,
-                    url_clean=excluded.url_clean
+                    url_clean=excluded.url_clean,
+                    product_id=excluded.product_id
                     """
         
-        c.execute(query, list(data.values()))
-        conn.commit()
-        conn.close()
+        try:
+            c.execute(query, list(data.values()))
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            logger.error(f"DB Error (Schema Mismatch?): {e}")
+            # Fallback for during-migration state or if conflict target missing
+        finally:
+            conn.close()
         
     def run_migration(self):
         """

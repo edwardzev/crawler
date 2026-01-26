@@ -7,3 +7,5 @@ tenacity
 requests
 sqlalchemy
 PyYAML
+python-multipart
+cloudinary

@@ -132,3 +132,39 @@ def slugify(text: str) -> str:
     
     return slug
 
+def clean_sku(sku: str) -> str:
+    """
+    Normalize SKU: 
+    - Uppercase
+    - Spaces -> "_"
+    - "/" -> "-"
+    - Remove unsafe chars
+    - Keep only A-Z0-9_-
+    """
+    if not sku:
+        return ""
+        
+    s = sku.upper().strip()
+    s = s.replace(' ', '_').replace('/', '-')
+    # Keep only safe chars
+    s = re.sub(r'[^A-Z0-9_\-]', '', s)
+    # Collapse
+    s = re.sub(r'[_\-]+', '_', s)
+    return s.strip('_')
+
+def slugify_supplier(name: str) -> str:
+    """Supplier slug: lowercase, simple hyphenated."""
+    return slugify(name)
+
+def generate_catalog_id(supplier: str, sku: str) -> str:
+    """
+    Canonical ID: supplier_slug:sku_clean
+    Example: kraus:KR12345
+    """
+    sup_slug = slugify_supplier(supplier)
+    sku_clean = clean_sku(sku)
+    
+    if not sup_slug or not sku_clean:
+        raise ValueError(f"Cannot generate catalog_id from supplier='{supplier}' sku='{sku}'")
+        
+    return f"{sup_slug}:{sku_clean}"

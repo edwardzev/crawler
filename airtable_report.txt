@@ -1,0 +1,57 @@
+Scanning records… page=1 total=100 next_offset=itrlhHxK…
+Scanning records… page=5 total=500 next_offset=itrlhHxK…
+Scanning records… page=10 total=1000 next_offset=itrlhHxK…
+Airtable Base Summary
+- Base ID: app1tMmtuC7BGfJLu
+- Table: Products (tblZSBzsMEbr2R2wJ)
+- Primary field: product_id
+- Total records: 1143
+- Records with catalog_id: 1143
+- Records flagged needs_fix_id: 0
+- Records with images attachment: 1143
+- Records with price set: 1143
+
+Status Field
+- Empty/missing: 1143
+- (no non-empty status values found)
+
+Schema (fields)
+- product_id: singleLineText
+- sku: singleLineText
+- images: multipleAttachments
+- title: singleLineText
+- supplier: singleSelect choices=[Kraus, Supplier2, Supplier3]
+- source_url: url
+- status: singleSelect choices=[Published, Hidden, Draft]
+- featured_rank: number
+- tags: multipleSelects choices=[מומלץ, חדש, נמכר חזק, Best Value, פרימיום]
+- category_major: singleSelect choices=[Headwear, Drinkware, Bags, Textile, Electronics, Other]
+- category_sub: singleSelect
+- category_sub2: singleSelect
+- printing_methods: multipleSelects choices=[DTF, UV, Sublimation, Etching, Embroidery, Laser, Pad print, Screen print]
+- suitable_for_sublimation: checkbox
+- is_new: checkbox
+- short_description: singleLineText
+- description: multilineText
+- properties: multilineText
+- image_main_url: singleLineText
+- slug_override: singleLineText
+- slug: singleLineText
+- seo_title: singleLineText
+- seo_description: multilineText
+- whatsapp_text_override: multilineText
+- whatsapp_text_final: multilineText
+- whatsapp_link: url
+- price_note: singleLineText
+- last_updated_by_supplier: date
+- last_seen_in_crawl: dateTime
+- content_hash: singleLineText
+- price: number
+- currency: singleLineText
+- image_urls: multilineText
+- sku_clean: singleLineText
+- supplier_slug: singleLineText
+- catalog_id: singleLineText
+- needs_fix_id: checkbox
+- id_conflict_note: multilineText
+- legacy_product_id: singleLineText

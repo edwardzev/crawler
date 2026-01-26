@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Heebo, Assistant } from "next/font/google";
 import "./globals.css";
+import { OrderSummary } from "@/components/OrderSummary";
+import { ToastProvider } from "@/lib/contexts/ToastContext";
 
 const heebo = Heebo({
   variable: "--font-heebo",
@@ -27,7 +29,10 @@ export default function RootLayout({
       <body
         className={`${heebo.variable} ${assistant.variable} antialiased font-sans`}
       >
-        {children}
+        <ToastProvider>
+          {children}
+          <OrderSummary />
+        </ToastProvider>
       </body>
     </html>
   );

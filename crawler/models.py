@@ -21,7 +21,10 @@ class Product(BaseModel):
     raw: Dict[str, Any] = Field(default_factory=dict)
     
     # System fields
-    product_id: str
+    catalog_id: str  # New Primary Key
+    sku_clean: str
+    supplier_slug: str
+    product_id: Optional[str] = None # Legacy ID
     content_hash: str
     first_seen_at: datetime
     last_seen_at: datetime

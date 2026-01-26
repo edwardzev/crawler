@@ -17,12 +17,32 @@ class HTMLParser:
             value = None
             attr = None
             
+            # Check for regex syntax: "selector :: regex:pattern"
+            regex_pattern = None
+            if ":: regex:" in selector:
+                selector, regex_pattern = selector.split(":: regex:", 1)
+                selector = selector.strip()
+                regex_pattern = regex_pattern.strip()
+
             # Check for attribute syntax: "selector::attribute"
             if "::" in selector:
                 sel_part, attr = selector.split("::", 1)
                 elements = self.tree.css(sel_part)
                 if elements:
-                    values = [el.attributes.get(attr) for el in elements if el.attributes.get(attr)]
+                    # Apply regex if present
+                    if regex_pattern:
+                        import re
+                        values = []
+                        for el in elements:
+                            val = el.attributes.get(attr)
+                            if val:
+                                match = re.search(regex_pattern, val)
+                                if match:
+                                    # Use first group if available, else whole match
+                                    values.append(match.group(1) if match.groups() else match.group(0))
+                    else:
+                        values = [el.attributes.get(attr) for el in elements if el.attributes.get(attr)]
+
                     if field == 'images':
                         data[field] = values
                     elif values:
@@ -33,15 +53,20 @@ class HTMLParser:
                     elements = self.tree.css(selector)
                     if elements:
                         value = [el.text(strip=True) for el in elements]
-                        # Map breadcrumb to category_path
                         data['category_path'] = value
                         continue
                 else:
                     element = self.tree.css_first(selector)
                     if element:
-                        value = element.text(separator=' ', strip=True)
-                        if value:
-                            data[field] = value
+                        text_content = element.text(separator=' ', strip=True)
+                        if regex_pattern and text_content:
+                            import re
+                            match = re.search(regex_pattern, text_content)
+                            if match:
+                                value = match.group(1) if match.groups() else match.group(0)
+                                data[field] = value
+                        elif text_content:
+                            data[field] = text_content
         
         return data
 

@@ -24,3 +24,7 @@ kraus_products.db
 # IDE
 .vscode/
 .idea/
+
+# Data
+public/data/mockups/*
+!public/data/mockups/.gitkeep

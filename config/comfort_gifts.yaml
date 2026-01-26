@@ -1,0 +1,27 @@
+supplier: Comfort
+base_url: https://www.comfort-gifts.com/
+db_path: products.db
+use_dynamic: true
+
+allowed_domains:
+  - comfort-gifts.com
+
+product_url_patterns:
+  - "/promotion-gadgets-Technology/"
+  - "/home-office/"
+  - "/textile-clothing/"
+  - "/bags-cases/"
+  # General catch-all for deep links if specific categories aren't exhaustive, 
+  # but these cover the main ones seen. OpenCart usually has /category/product-slug
+  
+selectors:
+  title: ".product-name"
+  sku: ".description :: regex:(?:Product Code|קוד מוצר):\\s*([A-Za-z0-9-]+)"
+  description: "#tab-description"
+  images: "#image :: src" # OpenCart default ID for main image often #image or #ex1 img
+  breadcrumb: ".breadcrumb a"
+  
+# Optional: detailed category patterns if we want to restrict discovery
+category_url_patterns:
+  - "/promotion-gadgets-Technology"
+  - "/home-office"

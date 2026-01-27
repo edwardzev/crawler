@@ -84,6 +84,10 @@ class CrawlerEngine:
                     product_data['url'] = url
                     product_data['supplier'] = self.config.get("supplier")
                     
+                    # Fallback SKU extraction from URL
+                    if not product_data.get('sku'):
+                        product_data['sku'] = self._extract_sku_from_url(url)
+                    
                     # Basic cleaning
                     if product_data.get('price') and isinstance(product_data['price'], str):
                         try:
@@ -128,6 +132,14 @@ class CrawlerEngine:
         return any(p in url for p in patterns)
 
     def _extract_sku_from_url(self, url: str) -> str:
+        # Check if config has specific regex for SKU in URL
+        sku_regex = self.config.get("sku_url_regex")
+        if sku_regex:
+            import re
+            match = re.search(sku_regex, url)
+            if match:
+                return match.group(1).upper()
+
         # Heuristic: Extract first segment after /product/
         # e.g. /product/sku123-desc... -> sku123
         try:

@@ -1,27 +1,44 @@
-supplier: Comfort
-base_url: https://www.comfort-gifts.com/
-db_path: products.db
-use_dynamic: true
+base_url: "https://www.comfort-gifts.com/"
+supplier: "Comfort Gifts"
+use_dynamic: false
+sku_url_regex: '/(\d+)-'
 
-allowed_domains:
-  - comfort-gifts.com
-
+# URL Patterns
 product_url_patterns:
-  - "/promotion-gadgets-Technology/"
-  - "/home-office/"
-  - "/textile-clothing/"
-  - "/bags-cases/"
-  # General catch-all for deep links if specific categories aren't exhaustive, 
-  # but these cover the main ones seen. OpenCart usually has /category/product-slug
-  
-selectors:
-  title: ".product-name"
-  sku: ".description :: regex:(?:Product Code|קוד מוצר):\\s*([A-Za-z0-9-]+)"
-  description: "#tab-description"
-  images: "#image :: src" # OpenCart default ID for main image often #image or #ex1 img
-  breadcrumb: ".breadcrumb a"
-  
-# Optional: detailed category patterns if we want to restrict discovery
-category_url_patterns:
+  - "/promotional-pens/"
+  - "/PROMOTION-BAGS"
   - "/promotion-gadgets-Technology"
-  - "/home-office"
+  - "/eco_products"
+  - "/new_products"
+  - "/home-and-vacation"
+  - "/textile-and-clothing"
+  - "/tools-flashlights-keychains"
+  - "/office"
+  - "/car_accessories"
+  - "/medical_promo_products"
+  - "/made-in-israel"
+  - "/clearance"
+  
+category_url_patterns:
+  - "/promotional-pens"
+  - "/PROMOTION-BAGS"
+  - "/promotion-gadgets-Technology"
+  - "/eco_products"
+  - "/new_products"
+  - "/home-and-vacation"
+  - "/textile-and-clothing"
+  - "/tools-flashlights-keychains"
+  - "/office"
+  - "/car_accessories"
+  - "/medical_promo_products"
+  - "/made-in-israel"
+  - "/clearance"
+
+# Selectors
+selectors:
+  title: "title"
+  description: "#tab-description"
+  images: "a.popup-image img::src" # Expects list
+  # main_image: "a.popup-image img::src" # First one
+  sku: '#content li :: regex:^קוד מוצר:\s*(.*)' # Try to match from text logic if possible, or fallback
+

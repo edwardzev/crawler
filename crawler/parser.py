@@ -49,25 +49,24 @@ class HTMLParser:
                         data[field] = values[0]
             else:
                 # Special handling for breadcrumb -> category_path (list)
-                    if field == 'breadcrumb':
-                        elements = self.tree.css(selector)
-                        if elements:
-                            value = [el.text(strip=True) for el in elements]
-                            data['category_path'] = value
-                            continue
-                    else:
-                        element = self.tree.css_first(selector)
-                        
-                        if element:
-                            text_content = element.text(separator=' ', strip=True)
-                            if regex_pattern and text_content:
-                                import re
-                                match = re.search(regex_pattern, text_content)
-                                if match:
-                                    value = match.group(1) if match.groups() else match.group(0)
-                                    data[field] = value
-                            elif text_content:
-                                data[field] = text_content
+                if field == 'breadcrumb':
+                    elements = self.tree.css(selector)
+                    if elements:
+                        value = [el.text(strip=True) for el in elements]
+                        data['category_path'] = value
+                        continue
+                else:
+                    element = self.tree.css_first(selector)
+                    if element:
+                        text_content = element.text(separator=' ', strip=True)
+                        if regex_pattern and text_content:
+                            import re
+                            match = re.search(regex_pattern, text_content)
+                            if match:
+                                value = match.group(1) if match.groups() else match.group(0)
+                                data[field] = value
+                        elif text_content:
+                            data[field] = text_content
         
         return data
 

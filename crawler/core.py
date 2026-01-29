@@ -18,12 +18,17 @@ class CrawlerEngine:
         self.visited: Set[str] = set()
         self.visited_skus: Set[str] = set()
         
-        # Initialize components
-        self.fetcher = HTMLFetcher()
-        # Parser will be instantiated per response or reused if stateless
+        # Threading support
+        import threading
+        self.lock = threading.Lock()
+        self.num_workers = config.get("num_workers", 3)
+        
+        # Shared setup
         db_path = config.get('db_path', 'products.db')
         self.pipeline = DataPipeline(db_path)
         self._load_existing_skus(db_path)
+        self.consecutive_failures = 0
+        self.MAX_CONSECUTIVE_FAILURES = 5
 
     def _load_existing_skus(self, db_path: str):
         try:
@@ -36,154 +41,212 @@ class CrawlerEngine:
                 rows = cursor.fetchall()
                 for row in rows:
                     if row[0]:
-                        self.visited_skus.add(row[0].upper()) # Normalize to upper case
+                        self.visited_skus.add(row[0].upper())
                 conn.close()
                 logger.info(f"Loaded {len(self.visited_skus)} existing SKUs from DB.")
         except Exception as e:
             logger.error(f"Failed to load existing SKUs: {e}")
-        
+
+    def seed_queue(self, urls: list[str]):
+        """Append external URLs to the queue with normalization"""
+        with self.lock:
+            for url in urls:
+                normalized_url = url.split("#")[0]
+                if normalized_url not in self.visited:
+                    self.queue.append(normalized_url)
+            
+            # Shuffle to distribute workers
+            import random
+            temp_list = list(self.queue)
+            random.shuffle(temp_list)
+            self.queue = deque(temp_list)
+
     def run(self):
-        logger.info(f"Starting crawl at {self.base_url}")
+        logger.info(f"Starting multi-threaded crawl with {self.num_workers} workers at {self.base_url}")
+        import time
+        from concurrent.futures import ThreadPoolExecutor
         
-        while self.queue:
-            url = self.queue.popleft()
-            
-            if url in self.visited:
-                continue
-                
-            self.visited.add(url)
-            self._process_url(url)
-            
-    def _process_url(self, url: str):
+        start_time = time.time()
+        self.count = 0
+        
+        def worker():
+            fetcher = HTMLFetcher()
+            try:
+                while True:
+                    url = None
+                    with self.lock:
+                        if not self.queue:
+                            break
+                        url = self.queue.popleft()
+                        if url in self.visited:
+                            continue
+                        self.visited.add(url)
+                    
+                    try:
+                        self._process_url(url, fetcher)
+                    except Exception as e:
+                        logger.error(f"Worker error processing {url}: {e}")
+                    
+                    with self.lock:
+                        self.count += 1
+                        if self.count % 10 == 0:
+                            elapsed = time.time() - start_time
+                            rate = self.count / elapsed if elapsed > 0 else 0
+                            logger.info(f"--- STATUS: {self.count} pages processed | Queue: {len(self.queue)} | Rate: {rate:.2f} p/s ---")
+            finally:
+                fetcher.close()
+
+        with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            futures = [executor.submit(worker) for _ in range(self.num_workers)]
+            for future in futures:
+                future.result()
+
+    def _process_url(self, url: str, fetcher: HTMLFetcher):
         logger.info(f"Processing: {url}")
         
-        # Determine if we need dynamic fetching
         use_dynamic = self.config.get("use_dynamic", False)
+        html = None
         
         try:
-            html = None
-            if not use_dynamic:
-                html = self.fetcher.fetch(url)
+            if use_dynamic:
+                html = fetcher.fetch_dynamic(url)
+            else:
+                html = fetcher.fetch(url)
                 
-            # Fallback to dynamic if static failed (e.g. 403) or if configured
             if not html:
-                logger.info(f"Trying dynamic fetch for {url}")
-                html = self.fetcher.fetch_dynamic(url)
-            
-            if not html: 
-                logger.warning(f"Failed to fetch {url}")
+                self.consecutive_failures += 1
+                logger.warning(f"Failed to fetch {url} (Consecutive failures: {self.consecutive_failures})")
                 return
+
+            self.consecutive_failures = 0
+
+            # ADDED: Smaller random delay for throughput
+            import time
+            import random
+            time.sleep(random.uniform(0.5, 1.5))
 
             parser = HTMLParser(html)
             
-            # Check if product page
             if self._is_product_url(url):
-                logger.info(f"Found product page: {url}")
                 product_data = parser.parse_product(self.config.get("selectors", {}))
+                
+                if product_data.get('title'):
+                    title = product_data['title']
+                    title_lower = title.lower()
+                    if any(x in title_lower for x in ["403", "forbidden", "access denied", "robot challenge", "bot detection", "screen reader"]):
+                        logger.warning(f"Detected Blocked Page (Title: '{title}') for {url}, skipping ingestion.")
+                        return
+                    
                 if product_data:
                     product_data['url'] = url
                     product_data['supplier'] = self.config.get("supplier")
                     
-                    # Fallback SKU extraction from URL
                     if not product_data.get('sku'):
                         product_data['sku'] = self._extract_sku_from_url(url)
                     
-                    # Basic cleaning
                     if product_data.get('price') and isinstance(product_data['price'], str):
+                        import re
                         try:
-                            # Remove all non-numeric except dots (handles ₪, $, €, commas, etc)
-                            import re
                             clean_price = re.sub(r'[^\d.]', '', product_data['price'])
                             product_data['price'] = float(clean_price) if clean_price else None
                         except ValueError:
                             product_data['price'] = None
-                            
+
                     if product_data.get('images'):
                         if isinstance(product_data['images'], str):
                             product_data['images'] = [product_data['images']]
-                        # Resolve relative URLs
                         product_data['images'] = [urljoin(url, img) for img in product_data['images'] if img]
                         
                     if product_data.get('properties') and not isinstance(product_data['properties'], dict):
-                        # TODO: proper table parsing
                         product_data['properties'] = {}
                     
-                    # Add to visited SKUs if found
                     if product_data.get('sku'):
-                        self.visited_skus.add(product_data['sku'].upper())
+                        with self.lock:
+                            self.visited_skus.add(product_data['sku'].upper())
 
                     self.pipeline.process_item(product_data)
             
-            # Discovery: Extract new links
-            links = parser.extract_links(url) # We need to add this method to Parser
-            logger.info(f"Extracted {len(links)} links from {url}")
-            for link in links:
-                if self._can_crawl(link):
-                    logger.info(f"Queueing: {link}")
-                    self.queue.append(link)
-                else:
-                    logger.debug(f"Skipping: {link}")
-                    
+            with self.lock:
+                q_len = len(self.queue)
+            
+            if q_len < 500:
+                links = parser.extract_links(url)
+                for link in links:
+                    link = link.split("#")[0]
+                    if self._can_crawl(link):
+                        with self.lock:
+                            if link not in self.visited:
+                                self.queue.append(link)
+                                
         except Exception as e:
             logger.error(f"Error processing {url}: {e}")
 
     def _is_product_url(self, url: str) -> bool:
         patterns = self.config.get("product_url_patterns", [])
-        return any(p in url for p in patterns)
+        for p in patterns:
+            if p.startswith("regex:"):
+                import re
+                if re.search(p[6:], url):
+                    return True
+            elif p in url:
+                return True
+        return False
 
     def _extract_sku_from_url(self, url: str) -> str:
-        # Check if config has specific regex for SKU in URL
+        import re
         sku_regex = self.config.get("sku_url_regex")
         if sku_regex:
-            import re
             match = re.search(sku_regex, url)
             if match:
-                return match.group(1).upper()
-
-        # Heuristic: Extract first segment after /product/
-        # e.g. /product/sku123-desc... -> sku123
-        try:
-            path = urlparse(url).path
-            if "/product/" in path:
-                # Get part after /product/
-                slug = path.split("/product/")[-1]
-                # Get part before first hyphen
-                if "-" in slug:
-                    return slug.split("-")[0].upper()
-                # Fallback if no hyphen (unlikely based on data)
-                return slug.strip("/").upper()
-        except:
-            pass
+                return match.group(1)
         return ""
 
     def _can_crawl(self, url: str) -> bool:
-        if url in self.visited: 
-            return False
-            
         parsed = urlparse(url)
-        # Domain check
-        domain_valid = any(parsed.netloc.endswith(d) for d in self.allowed_domains)
-        if not domain_valid:
+        if parsed.netloc and parsed.netloc not in self.allowed_domains:
             return False
             
-        # Pattern check (if category patterns exist, mainly follow those + products)
-        # For now, simple logic: if it's a product or category or next page
         cat_patterns = self.config.get("category_url_patterns", [])
         prod_patterns = self.config.get("product_url_patterns", [])
         
-        is_category = any(p in url for p in cat_patterns)
-        is_product = any(p in url for p in prod_patterns)
+        is_category = False
+        for p in cat_patterns:
+            if p.startswith("regex:"):
+                import re
+                if re.search(p[6:], url):
+                    is_category = True
+                    break
+            elif p in url:
+                is_category = True
+                break
+
+        is_product = False
+        for p in prod_patterns:
+            if p.startswith("regex:"):
+                import re
+                if re.search(p[6:], url):
+                    is_product = True
+                    break
+            elif p in url:
+                is_product = True
+                break
         
-        # Ignore add-to-cart links
         if "add-to-cart" in url:
             return False
-
+            
         if is_product:
-            # OPTIMIZATION: Check if we have this SKU already
             sku = self._extract_sku_from_url(url)
-            if sku and sku in self.visited_skus:
-                # logger.debug(f"Skipping known SKU: {sku} in {url}")
-                return False
-        
-        return is_category or is_product or url == self.base_url
+            with self.lock:
+                if sku and sku.upper() in self.visited_skus:
+                    logger.info(f"Skipping existing SKU: {sku} ({url})")
+                    return False
+            return True
+            
+        if is_category:
+            if url == self.base_url: return True
+            with self.lock:
+                if len(self.queue) > 500: 
+                    return False
+            return True
 
+        return url == self.base_url

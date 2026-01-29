@@ -1,4 +1,7 @@
 playwright
+fastapi
+uvicorn
+python-dotenv
 selectolax
 pydantic
 pandas

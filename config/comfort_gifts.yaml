@@ -1,23 +1,20 @@
 base_url: "https://www.comfort-gifts.com/"
+sitemap_url: "https://www.comfort-gifts.com/sitemap.xml"
 supplier: "Comfort Gifts"
-use_dynamic: false
-sku_url_regex: '/(\d+)-'
+use_dynamic: true
+num_workers: 2
+sku_url_regex: '(?:^|/)(\d+)[^/]*$'
+allowed_domains:
+  - "comfort-gifts.com"
+  - "www.comfort-gifts.com"
 
 # URL Patterns
+# URL Patterns
 product_url_patterns:
-  - "/promotional-pens/"
-  - "/PROMOTION-BAGS"
-  - "/promotion-gadgets-Technology"
-  - "/eco_products"
-  - "/new_products"
-  - "/home-and-vacation"
-  - "/textile-and-clothing"
-  - "/tools-flashlights-keychains"
-  - "/office"
-  - "/car_accessories"
-  - "/medical_promo_products"
-  - "/made-in-israel"
-  - "/clearance"
+  - "regex:/\\d+($|[/-])" # Numeric IDs are products
+  - "product_id="         # OpenCart query param
+  - "/product/"           # Standard product prefix
+  - "regex:[/-]\\d+$"     # Numeric ID at the end
   
 category_url_patterns:
   - "/promotional-pens"
@@ -33,6 +30,8 @@ category_url_patterns:
   - "/medical_promo_products"
   - "/made-in-israel"
   - "/clearance"
+  - "route=product/category" # OpenCart style dynamic categories
+  - "regex:path=\\d+(_\\d+)*" # Matches path=59 or path=59_60
 
 # Selectors
 selectors:

@@ -13,21 +13,47 @@ export default async function Home() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 12);
 
-  // Helper to find image for category
-  const getCategoryImage = (catSlug: string) => {
-    // Find a product that starts with this category slug
-    const product = products.find(p => p.category_slug_path && p.category_slug_path.includes(catSlug) && p.image_main);
-    return product?.image_main;
-  }
 
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-blue-600 px-4 py-20 text-center text-white">
-        <h1 className="mb-4 text-4xl font-bold md:text-5xl">קטלוג מוצרים לספקים</h1>
-        <p className="mb-8 text-xl text-blue-100">חיפוש מהיר ונוח בכל הקטגוריות</p>
+      <section className="relative overflow-hidden bg-slate-950 px-4 py-24 text-white">
+        {/* Mesh Gradient Overlay */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute -left-[10%] -top-[10%] h-[50%] w-[50%] rounded-full bg-blue-600/30 blur-[120px]" />
+          <div className="absolute -right-[10%] -bottom-[10%] h-[50%] w-[50%] rounded-full bg-purple-600/30 blur-[120px]" />
+        </div>
+
+        <div className="container relative z-10 mx-auto grid items-center gap-12 md:grid-cols-2">
+          <div className="text-right">
+            <h1 className="mb-6 text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
+              קטלוג מוצרים <br />
+              <span className="bg-gradient-to-l from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                לספקים מובילים
+              </span>
+            </h1>
+            <p className="mb-10 text-xl text-slate-400 max-w-lg mr-0">
+              הדרך המהירה והמתקדמת ביותר למצוא, לעצב ולהזמין מוצרי קד"מ בהתאמה אישית.
+            </p>
+            <div className="flex justify-end gap-4">
+              <Link href="/c/categories" className="rounded-full bg-white px-8 py-3 font-semibold text-slate-950 transition-transform hover:scale-105 active:scale-95">
+                צפה בכל הקטגוריות
+              </Link>
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <div className="relative aspect-square">
+              <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-3xl" />
+              <img
+                src="/hero-visual.png"
+                alt="Product Catalog"
+                className="relative z-10 h-full w-full object-contain animate-float"
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <div className="container mx-auto px-4 -mt-8">
@@ -38,7 +64,7 @@ export default async function Home() {
               <CategoryCard
                 key={cat.slug}
                 category={cat}
-                imageUrl={getCategoryImage(cat.slug)}
+                imageUrl={undefined}
               />
             ))}
           </div>

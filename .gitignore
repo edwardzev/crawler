@@ -28,3 +28,4 @@ kraus_products.db
 # Data
 public/data/mockups/*
 !public/data/mockups/.gitkeep
+browser_data/

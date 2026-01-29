@@ -45,7 +45,7 @@ def get_products(db_path: str):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT catalog_id, supplier_slug, sku_clean, images, cloudinary_images FROM products")
+    c.execute("SELECT catalog_id, supplier_slug, sku_clean, images, cloudinary_images FROM products WHERE supplier_slug = 'comfort'")
     rows = c.fetchall()
     conn.close()
     return rows

@@ -11,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser(description="Supplier Catalog Crawler")
     parser = argparse.ArgumentParser(description="Supplier Catalog Crawler")
     parser.add_argument("--config", type=str, help="Path to supplier config YAML")
+    parser.add_argument("--sitemap", action="store_true", help="Seed queue from sitemap.xml")
     parser.add_argument("--export", type=str, help="Path to export output (e.g. products.csv)")
     parser.add_argument("--format", type=str, default="csv", choices=["csv", "xlsx", "json"], help="Export format")
     parser.add_argument("--db", type=str, default="products.db", help="Path to SQLite DB")
@@ -41,7 +42,26 @@ def main():
     
     if not args.no_crawl:
         print(f"Starting crawler for {config.get('supplier', 'Unknown Supplier')}")
+        
+        # Initialize Engine
         engine = CrawlerEngine(config)
+        
+        # Optional: Load from Sitemap first
+        if args.sitemap:
+            print(f"Fetching URLs from sitemap: {config.get('sitemap_url')} ...")
+            from crawler.sitemap import SitemapCrawler
+            sitemap_crawler = SitemapCrawler(config.get('base_url'))
+            urls = sitemap_crawler.get_product_urls()
+            if urls:
+                print(f"Seeding queue with {len(urls)} URLs from sitemap...")
+                engine.seed_queue(urls)
+            else:
+                print("Sitemap blocked or empty. Seeding from Category Patterns in config...")
+                cat_patterns = config.get("category_url_patterns", [])
+                base = config.get("base_url").rstrip('/')
+                seed_urls = [base + p if p.startswith('/') else p for p in cat_patterns if p.startswith('/')]
+                engine.seed_queue(seed_urls)
+
         engine.run()
         
     if args.export:

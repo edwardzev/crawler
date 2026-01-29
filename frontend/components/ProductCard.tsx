@@ -8,7 +8,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     return (
-        <div className="group flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md">
+        <div className="group flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             <Link href={`/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`} className="aspect-square w-full overflow-hidden bg-gray-100 relative">
                 {product.image_main ? (
                     <img

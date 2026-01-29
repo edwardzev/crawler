@@ -4,6 +4,7 @@ import sys
 import json
 import time
 import requests
+import re
 from typing import Dict, Any, List, Set, Tuple
 from collections import defaultdict
 from dotenv import load_dotenv
@@ -15,13 +16,19 @@ AIRTABLE_PAT = os.getenv("AIRTABLE_PAT")
 BASE_ID = "app1tMmtuC7BGfJLu"
 TABLE_NAME = "Products"
 
-API_URL = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE_NAME}"
+API_BASE = "https://api.airtable.com/v0"
+API_URL = f"{API_BASE}/{BASE_ID}/{TABLE_NAME}"
+
 HEADERS = {
     "Authorization": f"Bearer {AIRTABLE_PAT}",
     "Content-Type": "application/json"
 }
 
-PROTECTED_FIELDS = [
+BATCH_SIZE = 10
+MAX_RETRIES = 5
+SLEEP_BETWEEN_BATCHES_SEC = 0.25
+
+PROTECTED_FIELDS = {
     "status", 
     "tags", 
     "featured_rank", 
@@ -33,13 +40,55 @@ PROTECTED_FIELDS = [
     "seo_description",
     "whatsapp_text_final",
     "whatsapp_link"
-]
+}
+
+def airtable_request(method: str, url: str, payload: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    for attempt in range(1, MAX_RETRIES + 1):
+        r = requests.request(method, url, headers=HEADERS, json=payload, timeout=30)
+        if r.status_code in (429, 500, 502, 503, 504):
+            wait = min(2 ** attempt, 20)
+            print(f"Retryable Airtable error {r.status_code}. Waiting {wait}s... (attempt {attempt}/{MAX_RETRIES})")
+            time.sleep(wait)
+            continue
+        if not r.ok:
+            print(f"\nAirtable API error {r.status_code}: {r.text}")
+            return {}
+        return r.json()
+    return {}
+
+def category_from_path(category_path: Any) -> Tuple[str, str, str]:
+    if category_path is None:
+        return ("", "", "")
+
+    if isinstance(category_path, str):
+        s = category_path.strip()
+        if s.startswith("[") and s.endswith("]"):
+            try:
+                arr = json.loads(s)
+                parts = [str(x).strip() for x in arr if str(x).strip()]
+            except:
+                parts = [s]
+        else:
+            for sep in (">", "/", "|", "»"):
+                if sep in s:
+                    parts = [p.strip() for p in s.split(sep) if p.strip()]
+                    break
+            else:
+                parts = [s]
+    elif isinstance(category_path, list):
+        parts = [str(x).strip() for x in category_path if str(x).strip()]
+    else:
+        parts = [str(category_path).strip()]
+
+    major = parts[0] if len(parts) > 0 else ""
+    sub = parts[1] if len(parts) > 1 else ""
+    sub2 = parts[2] if len(parts) > 2 else ""
+    return (major, sub, sub2)
 
 def get_sqlite_products(db_path: str) -> List[Dict[str, Any]]:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    # Check if cloudinary_images column exists
     try:
         c.execute("SELECT * FROM products")
     except Exception as e:
@@ -48,163 +97,114 @@ def get_sqlite_products(db_path: str) -> List[Dict[str, Any]]:
         
     rows = c.fetchall()
     products = []
-    
-    # Check columns to see if cloudinary_images exists
     cols = [description[0] for description in c.description]
-    has_cloud_imgs = "cloudinary_images" in cols
     
     for r in rows:
         d = dict(r)
-        
         # Parse JSON
-        if d.get('images'): 
-            try: d['images'] = json.loads(d['images']) 
-            except: d['images'] = []
-            
-        if d.get('properties'):
-            try: d['properties'] = json.loads(d['properties'])
-            except: d['properties'] = {}
-            
-        if has_cloud_imgs and d.get('cloudinary_images'):
-            try: d['cloudinary_images'] = json.loads(d['cloudinary_images'])
-            except: d['cloudinary_images'] = []
-        else:
-            d['cloudinary_images'] = []
-            
+        for field in ['images', 'properties', 'cloudinary_images', 'variants']:
+            if d.get(field):
+                try: d[field] = json.loads(d[field])
+                except: d[field] = [] if field != 'properties' else {}
+            elif field != 'properties':
+                d[field] = []
+            else:
+                d[field] = {}
         products.append(d)
     conn.close()
     return products
 
-def fetch_airtable_records() -> Dict[str, Any]:
-    records_map = {}
-    duplicates = defaultdict(list)
-    offset = None
-    print("Fetching existing Airtable records...")
-    
-    while True:
-        params = {"pageSize": 100}
-        if offset:
-            params["offset"] = offset   
-        try:
-            r = requests.get(API_URL, headers=HEADERS, params=params)
-            r.raise_for_status()
-            data = r.json()
-            for rec in data.get("records", []):
-                fields = rec.get("fields", {})
-                rid = rec["id"]
-                cid = fields.get("catalog_id")
-                if cid:
-                    if cid in records_map:
-                        duplicates[cid].append(rid)
-                    else:
-                        records_map[cid] = {"id": rid, "fields": fields}
-            offset = data.get("offset")
-            if not offset: break
-        except Exception as e:
-            print(f"Error fetching airtable: {e}")
-            sys.exit(1)
-            
-    print(f"Fetched {len(records_map)} unique catalog_id records.")
-    return records_map, duplicates
-
-def sync_batch(batch_payload: List[Dict[str, Any]], method: str = "PATCH"):
-    for i in range(0, len(batch_payload), 10):
-        chunk = batch_payload[i:i+10]
-        payload = {"records": chunk}
-        try:
-            if method == "POST":
-                r = requests.post(API_URL, headers=HEADERS, json=payload)
-            else:
-                r = requests.patch(API_URL, headers=HEADERS, json=payload)
-            r.raise_for_status()
-            time.sleep(0.25)
-        except Exception as e:
-            print(f"Error syncing batch {i}: {e}")
-            if hasattr(e, 'response') and e.response: print(e.response.text)
+def airtable_upsert(records: List[Dict[str, Any]], fields_to_merge: List[str]):
+    payload = {
+        "performUpsert": {
+            "fieldsToMergeOn": fields_to_merge
+        },
+        "records": [{"fields": r} for r in records]
+    }
+    r = requests.patch(API_URL, headers=HEADERS, json=payload, timeout=45)
+    return r
 
 def main():
+    if not AIRTABLE_PAT:
+        print("ERROR: AIRTABLE_PAT env var not set.")
+        return
+
     db_path = "products.db"
     if not os.path.exists(db_path):
         print("products.db not found.")
         return
 
     products = get_sqlite_products(db_path)
-    airtable_map, airtable_dupes = fetch_airtable_records()
-    
-    to_create = []
-    to_update = []
-    
-    print(f"Processing {len(products)} local products...")
-    
+    print(f"Loaded {len(products)} products from SQLite.")
+
+    # Prepare batch records
+    batch_records = []
     for p in products:
-        cid = p['catalog_id']
+        cid = p.get('catalog_id')
         if not cid: continue
         
-        # PREPARE URLS
-        # Priorities: 1. Cloudinary Images, 2. Original Images
-        final_images = p['cloudinary_images'] if p['cloudinary_images'] else p['images']
+        major, sub, sub2 = category_from_path(p.get('category_path'))
+        final_images = p.get('cloudinary_images') if p.get('cloudinary_images') else p.get('images', [])
+        img_objs = [{"url": url} for url in final_images if url][:10]
         
-        # Format for Airtable Attachments
-        img_objs = [{"url": url} for url in final_images if url]
-        
-        # Format for 'image_urls' text field (newline separated)
-        img_urls_text = "\n".join(final_images) if final_images else ""
-
         fields = {
             "catalog_id": cid,
-            "product_id": p['product_id'],
-            "sku": p['sku'],
+            "product_id": p.get('product_id'),
+            "sku": p.get('sku'),
             "sku_clean": p.get('sku_clean'),
-            "supplier": p['supplier'],
+            "supplier": p.get('supplier'),
             "supplier_slug": p.get('supplier_slug'),
-            "title": p['title'],
-            "price": p['price'],
-            "currency": p['currency'],
-            "source_url": p['url_clean'] or p['url'],
-            "image_urls": img_urls_text,
-            # "images": img_objs  <-- Uncomment if we want to sync attachments too
+            "title": p.get('title'),
+            "price": p.get('price'),
+            "currency": p.get('currency'),
+            "source_url": p.get('url_clean') or p.get('url'),
+            "image_urls": "\n".join(final_images),
+            "category_major": major,
+            "category_sub": sub,
+            "category_sub2": sub2,
+            "description": p.get('description'),
+            "properties": json.dumps(p.get('properties'), ensure_ascii=False) if p.get('properties') else "",
+            "last_seen_in_crawl": p.get('last_seen_at'),
+            "content_hash": p.get('content_hash')
         }
-        
-        # Update Attachment field 'images'
-        if img_objs:
-             fields["images"] = img_objs
+        if img_objs: fields["images"] = img_objs
+        batch_records.append(fields)
 
-        if cid in airtable_dupes:
-            continue # specific processing later if needed
-
-        if cid in airtable_map:
-            # UPDATE
-            existing = airtable_map[cid]
-            rid = existing['id']
-            existing_fields = existing['fields']
-            
-            # Default Description from DB if not protected
-            if p.get('description'):
-                fields['description'] = p['description']
-            
-            # Remove protected if exists in Airtable
-            for prot in PROTECTED_FIELDS:
-                if existing_fields.get(prot): 
-                    if prot in fields: del fields[prot]
-            
-            to_update.append({"id": rid, "fields": fields})
-        else:
-            # CREATE
-            if p.get('description'):
-                fields['description'] = p['description']
-            to_create.append({"fields": fields})
-            
-    print(f"Plan: Create {len(to_create)}, Update {len(to_update)}")
+    # Sync Loop
+    print(f"Upserting {len(batch_records)} products to Airtable...")
+    total = len(batch_records)
+    done = 0
     
-    if to_create:
-        print("Executing Creates...")
-        sync_batch(to_create, "POST")
+    cat_fields = ["category_major", "category_sub", "category_sub2"]
+
+    for i in range(0, total, BATCH_SIZE):
+        chunk = batch_records[i:i+BATCH_SIZE]
         
-    if to_update:
-        print("Executing Updates...")
-        sync_batch(to_update, "PATCH")
+        # Attempt 1: Full sync
+        resp = airtable_upsert(chunk, ["catalog_id"])
         
-    print("Sync Complete.")
+        if not resp.ok:
+            if resp.status_code == 422:
+                # 422 usually means a new choice in a select field
+                # Fallback: Sync without category fields
+                print(f"  Batch {i}: 422 error. Retrying without category fields...")
+                fallback_chunk = []
+                for rec in chunk:
+                    clean_rec = {k: v for k, v in rec.items() if k not in cat_fields}
+                    fallback_chunk.append(clean_rec)
+                
+                resp2 = airtable_upsert(fallback_chunk, ["catalog_id"])
+                if not resp2.ok:
+                    print(f"  Batch {i}: Permanent failure: {resp2.text}")
+            else:
+                print(f"  Batch {i}: Error {resp.status_code}: {resp.text}")
+        
+        done += len(chunk)
+        if done % 100 == 0 or done == total:
+            print(f"  {done}/{total} products processed")
+        time.sleep(SLEEP_BETWEEN_BATCHES_SEC)
+
+    print("\n✅ Sync Complete.")
 
 if __name__ == "__main__":
     main()

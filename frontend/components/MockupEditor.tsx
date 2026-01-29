@@ -486,8 +486,9 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
                                         type="number"
                                         value={quantity}
                                         onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                         min="1"
+                                        dir="ltr"
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -497,8 +498,9 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
                                         step="0.1"
                                         value={widthCm}
                                         onChange={(e) => setWidthCm(parseFloat(e.target.value) || 0)}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                         min="0.1"
+                                        dir="ltr"
                                     />
                                 </div>
                             </div>

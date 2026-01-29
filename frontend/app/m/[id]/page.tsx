@@ -1,16 +1,8 @@
 import { getProducts } from "@/lib/data";
 import fs from "fs/promises";
 import path from "path";
-import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
-import { Link } from "lucide-react";
-
-// Server Component
-// Dynamic Editor Import
-const MockupEditor = dynamic(() => import("@/components/MockupEditor"), {
-    ssr: false,
-    loading: () => <div className="h-64 animate-pulse bg-gray-200" />
-});
+import { MockupViewer } from "@/components/MockupViewer";
 
 type Props = {
     params: Promise<{ id: string }>;
@@ -71,7 +63,7 @@ export default async function MockupViewPage({ params }: Props) {
 
                     <div className="grid md:grid-cols-2 gap-8 p-8">
                         <div>
-                            <MockupEditor product={product} initialState={mockup} readOnly={true} />
+                            <MockupViewer product={product} mockup={mockup} />
                         </div>
 
                         <div className="flex flex-col justify-center gap-4">

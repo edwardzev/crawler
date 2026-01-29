@@ -10,6 +10,7 @@ import { Product, CategoryNode, CategoryFlat } from "./types";
 // So we will assume they are available at build time.
 
 const DATA_DIR = path.resolve(process.cwd(), "../data/out");
+const PUBLIC_DATA_DIR = path.resolve(process.cwd(), "public/data");
 
 // Fallback for Vercel deployment where sibling dirs might not be accessible easily
 // unless we include them in the build.
@@ -17,7 +18,9 @@ const DATA_DIR = path.resolve(process.cwd(), "../data/out");
 
 export async function getProducts(): Promise<Product[]> {
     try {
-        const filePath = path.join(DATA_DIR, "products.frontend.json");
+        const primaryPath = path.join(DATA_DIR, "products.frontend.json");
+        const fallbackPath = path.join(PUBLIC_DATA_DIR, "products.frontend.json");
+        const filePath = await fileExists(primaryPath) ? primaryPath : fallbackPath;
         const data = await fs.readFile(filePath, "utf-8");
         return JSON.parse(data) as Product[];
     } catch (error) {
@@ -28,7 +31,9 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getCategoriesTree(): Promise<CategoryNode> {
     try {
-        const filePath = path.join(DATA_DIR, "categories.frontend.json");
+        const primaryPath = path.join(DATA_DIR, "categories.frontend.json");
+        const fallbackPath = path.join(PUBLIC_DATA_DIR, "categories.frontend.json");
+        const filePath = await fileExists(primaryPath) ? primaryPath : fallbackPath;
         const data = await fs.readFile(filePath, "utf-8");
         return JSON.parse(data) as CategoryNode;
     } catch (error) {
@@ -39,11 +44,22 @@ export async function getCategoriesTree(): Promise<CategoryNode> {
 
 export async function getFlatCategories(): Promise<CategoryFlat[]> {
     try {
-        const filePath = path.join(DATA_DIR, "categories.flat.json");
+        const primaryPath = path.join(DATA_DIR, "categories.flat.json");
+        const fallbackPath = path.join(PUBLIC_DATA_DIR, "categories.flat.json");
+        const filePath = await fileExists(primaryPath) ? primaryPath : fallbackPath;
         const data = await fs.readFile(filePath, "utf-8");
         return JSON.parse(data) as CategoryFlat[];
     } catch (error) {
         console.error("Error loading flat categories:", error);
         return [];
+    }
+}
+
+async function fileExists(filePath: string) {
+    try {
+        await fs.access(filePath);
+        return true;
+    } catch {
+        return false;
     }
 }

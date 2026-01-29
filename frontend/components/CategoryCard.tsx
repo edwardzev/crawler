@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CategoryNode } from "@/lib/types";
 
 interface CategoryCardProps {
@@ -27,27 +26,29 @@ export function CategoryCard({ category }: CategoryCardProps) {
     };
 
     const iconUrl = getProductIcon(category.name);
+    const href = `/c/${encodeURIComponent(category.slug || "")}`;
 
     return (
-        <Link
-            href={`/c/${category.slug}`}
-            className="group flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-100"
+        <a
+            href={href}
+            aria-label={`קטגוריה: ${category.name}`}
+            className="group flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 cursor-pointer"
         >
             <div className="aspect-square w-full overflow-hidden bg-slate-900 relative">
                 <img
                     src={iconUrl}
                     alt={category.name}
-                    className="h-full w-full object-contain p-8 transition-all duration-500 group-hover:scale-110 group-hover:brightness-125"
+                    className="h-full w-full object-contain p-8 transition-all duration-500 group-hover:scale-110 group-hover:brightness-125 pointer-events-none"
                     loading="lazy"
                 />
 
                 {/* Modern Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 pointer-events-none" />
                 <div className="absolute bottom-4 right-4 text-white">
                     <h3 className="text-xl font-bold">{category.name}</h3>
                     <p className="text-sm opacity-90">{category.count} מוצרים</p>
                 </div>
             </div>
-        </Link>
+        </a>
     );
 }

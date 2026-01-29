@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "mkdir -p public/data && cp ../data/out/*.json public/data/ && next build",
+    "build": "mkdir -p public/data && (ls ../data/out/*.json >/dev/null 2>&1 && cp ../data/out/*.json public/data/ || true) && next build",
     "start": "next start",
     "lint": "eslint"
   },

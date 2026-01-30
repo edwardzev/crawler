@@ -17,8 +17,11 @@ export async function generateStaticParams() {
     const products = await getProducts();
     // Path: /p/[supplier]/[sku]/[slug]
     // Filter out items without complete ID info (should be none post-migration)
+    // Optimization: Only pre-render the first 200 products to speed up build and avoid Vercel limits.
+    // The rest will be generated on-demand (ISR/SSR).
     return products
         .filter(p => p.supplier_slug && p.sku_clean)
+        .slice(0, 200)
         .map((product) => ({
             supplier: String(product.supplier_slug),
             sku: String(product.sku_clean),

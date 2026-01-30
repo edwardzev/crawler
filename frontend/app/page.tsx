@@ -38,11 +38,7 @@ export default async function Home() {
             <br className="hidden md:inline" />
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row mb-12">
-            <Link href="/c/categories" className="rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-blue-200 transition-transform hover:scale-105 hover:bg-blue-700 active:scale-95">
-              צפה בכל הקטגוריות
-            </Link>
-          </div>
+
 
           <div className="flex justify-center gap-12 text-gray-400 border-t border-gray-100 pt-8 mt-8 max-w-lg mx-auto">
             <div className="text-center">
@@ -52,7 +48,7 @@ export default async function Home() {
             <div className="h-10 w-px bg-gray-200" />
             <div className="text-center">
               <span className="block text-3xl font-bold text-gray-900">{new Set(products.map(p => p.supplier)).size}</span>
-              <span className="text-sm">ספקים מובילים</span>
+              <span className="text-sm">ספקים</span>
             </div>
           </div>
         </div>
@@ -66,7 +62,7 @@ export default async function Home() {
       <section className="bg-white">
         <div className="container mx-auto px-4 py-10">
           <div className="text-right">
-            <p className="text-sm font-semibold text-gray-500">ספקים מובילים</p>
+            <p className="text-sm font-semibold text-gray-500">ספקים</p>
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-8">
             {supplierLogos.map((logo) => (
@@ -91,7 +87,7 @@ export default async function Home() {
         <div className="mb-8">
           <div className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
             <h2 className="text-2xl font-bold text-gray-900">קטגוריות מובילות</h2>
-            <p className="text-sm text-gray-500">סה״כ מוצרים: {products.length}</p>
+
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {topCategories.map((cat) => (

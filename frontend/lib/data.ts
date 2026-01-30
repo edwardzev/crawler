@@ -33,9 +33,24 @@ export async function getCategoriesTree(): Promise<CategoryNode> {
     try {
         const primaryPath = path.join(DATA_DIR, "categories.frontend.json");
         const fallbackPath = path.join(PUBLIC_DATA_DIR, "categories.frontend.json");
-        const filePath = await fileExists(primaryPath) ? primaryPath : fallbackPath;
-        const data = await fs.readFile(filePath, "utf-8");
-        return JSON.parse(data) as CategoryNode;
+
+        let filePath = "";
+        if (await fileExists(primaryPath)) filePath = primaryPath;
+        else if (await fileExists(fallbackPath)) filePath = fallbackPath;
+
+        if (filePath) {
+            const data = await fs.readFile(filePath, "utf-8");
+            return JSON.parse(data) as CategoryNode;
+        }
+
+        // Fallback: Build from products if no pre-built tree exists
+        console.warn("No pre-built categories.frontend.json found. Building from products...");
+        const products = await getProducts();
+        if (products.length > 0) {
+            return buildCategoryTreeFromProducts(products);
+        }
+
+        return { name: "root", slug: "", count: 0, children: [] };
     } catch (error) {
         console.error("Error loading categories tree:", error);
         return { name: "root", slug: "", count: 0, children: [] };

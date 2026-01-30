@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Menu, X, ShoppingBag, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ShoppingBag, ChevronDown, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product, CategoryNode } from "@/lib/types";
 
@@ -86,6 +86,15 @@ export function Header({ categories }: HeaderProps) {
                 <div className="flex items-center">
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center space-x-6 mr-0">
+                        {/* Home Icon */}
+                        <Link
+                            href="/"
+                            className="flex items-center justify-center p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            aria-label="דף הבית"
+                        >
+                            <Home className="h-5 w-5" />
+                        </Link>
+
                         {/* Mega Menu Trigger */}
                         <div
                             className="relative"
@@ -191,7 +200,7 @@ export function Header({ categories }: HeaderProps) {
                 </div>
 
                 {/* Desktop Search */}
-                <div className="hidden flex-1 md:flex md:justify-center md:max-w-md relative mx-4">
+                <div className="hidden flex-1 md:flex md:justify-center md:max-w-2xl relative mx-4">
                     <form onSubmit={handleSearch} className="relative w-full z-40">
                         <input
                             type="text"

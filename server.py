@@ -260,8 +260,8 @@ async def add_order_item(
             resource_type="image",
             overwrite=True
         )
-        # Note: We might store mockup URL too if desired, but spec says Graphic N = logo (or URL)
-        # Assuming Graphic N stores the logo attachment for production
+        mockup_url = mockup_res.get("secure_url")
+        
     except Exception as e:
         print(f"Cloudinary Upload Error: {e}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
@@ -273,10 +273,12 @@ async def add_order_item(
     }
     
     # Exact mapping based on spec
-    width_field = f"Width {slot_index} cm" if slot_index <= 2 else f"Width {slot_index}"
+    # Standardized: Always use "Width N cm"
+    width_field = f"Width {slot_index} cm"
     
     fields = {
         f"Graphic {slot_index}": [{"url": logo_url}],
+        f"Mockup {slot_index}": [{"url": mockup_url}],
         width_field: width,
         f"Number {slot_index}": quantity
     }

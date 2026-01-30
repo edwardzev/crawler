@@ -2,7 +2,7 @@ import { getProducts, getFlatCategories } from "@/lib/data";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://example.com").replace(/\/$/, "");
 
     const products = await getProducts();
     const flatCategories = await getFlatCategories();

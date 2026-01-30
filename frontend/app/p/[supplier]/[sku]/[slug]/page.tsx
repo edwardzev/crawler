@@ -8,6 +8,8 @@ import { ImageGallery } from "@/components/ImageGallery";
 import Link from "next/link";
 import { OrderSummary } from "@/components/OrderSummary";
 
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://example.com").replace(/\/$/, "");
+
 type Props = {
     params: Promise<{ supplier: string; sku: string; slug: string }>;
 };
@@ -38,10 +40,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return { title: "Product Not Found" };
     }
 
+    const canonicalUrl = `${baseUrl}/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`;
+    const description = `מק"ט: ${product.sku}. ${product.description || ""}`.slice(0, 160);
+
     return {
         title: `${product.title} | ${product.supplier} | קטלוג`,
-        description: `מק"ט: ${product.sku}. ${product.description || ""}`.slice(0, 160),
+        description,
+        alternates: {
+            canonical: canonicalUrl,
+        },
         openGraph: {
+            title: `${product.title} | ${product.supplier} | קטלוג`,
+            description,
+            url: canonicalUrl,
+            images: product.image_main ? [product.image_main] : [],
+        },
+        twitter: {
+            title: `${product.title} | ${product.supplier} | קטלוג`,
+            description,
             images: product.image_main ? [product.image_main] : [],
         },
     };
@@ -60,6 +76,8 @@ export default async function ProductPage({ params }: Props) {
         return <div className="p-10 text-center">מוצר לא נמצא</div>;
     }
 
+    const canonicalUrl = `${baseUrl}/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`;
+
     // Build breadcrumbs from category path
     // We have 'category_slug_path' and 'category_path'.
     // We need to zip them.
@@ -69,9 +87,62 @@ export default async function ProductPage({ params }: Props) {
         return { label: name, href: `/c/${slugPath}` };
     });
 
+    const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "קטלוג",
+                item: `${baseUrl}`
+            },
+            ...breadcrumbs.map((item, index) => ({
+                "@type": "ListItem",
+                position: index + 2,
+                name: item.label,
+                item: `${baseUrl}${item.href}`
+            }))
+        ]
+    };
+
+    const availability = product.availability?.toLowerCase().includes("out")
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock";
+
+    const productJsonLd: Record<string, unknown> = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.title,
+        description: product.description || undefined,
+        sku: product.sku_clean || product.sku || undefined,
+        brand: product.supplier || undefined,
+        image: product.images && product.images.length > 0 ? product.images : undefined,
+        url: canonicalUrl,
+    };
+
+    if (product.price) {
+        productJsonLd.offers = {
+            "@type": "Offer",
+            priceCurrency: product.currency || "ILS",
+            price: product.price,
+            availability,
+            url: canonicalUrl,
+        };
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <Header />
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+            />
 
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-6">

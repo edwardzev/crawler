@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Metadata } from "next";
 
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://example.com").replace(/\/$/, "");
+
 export async function generateStaticParams() {
     // Generate params for all categories
     const flatCats = await getFlatCategories();
@@ -23,11 +25,43 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const pathSlug = slug[slug.length - 1];
-    // We would need to look up the name.
-    // For now, let's just capitalize slug or find it via data.
+    const decodedSlug = slug.map(s => decodeURIComponent(s));
+    const flatCategories = await getFlatCategories();
+    const products = await getProducts();
+
+    const currentCategory = flatCategories.find(c =>
+        c.slug_path.length === decodedSlug.length &&
+        c.slug_path.every((s, i) => s === decodedSlug[i])
+    );
+
+    const categoryName = currentCategory ? currentCategory.path[currentCategory.path.length - 1] : decodedSlug[decodedSlug.length - 1];
+
+    const productCount = products.filter(p => {
+        if (p.category_slug_path.length < decodedSlug.length) return false;
+        for (let i = 0; i < decodedSlug.length; i++) {
+            if (p.category_slug_path[i] !== decodedSlug[i]) return false;
+        }
+        return true;
+    }).length;
+
+    const canonicalPath = decodedSlug.map(s => encodeURIComponent(s)).join("/");
+    const canonicalUrl = `${baseUrl}/c/${canonicalPath}`;
+
     return {
-        title: `${pathSlug} | קטלוג ספקים`,
+        title: `${categoryName} | קטלוג ספקים`,
+        description: `${categoryName} - ${productCount} מוצרים בקטגוריה`,
+        alternates: {
+            canonical: canonicalUrl,
+        },
+        openGraph: {
+            title: `${categoryName} | קטלוג ספקים`,
+            description: `${categoryName} - ${productCount} מוצרים בקטגוריה`,
+            url: canonicalUrl,
+        },
+        twitter: {
+            title: `${categoryName} | קטלוג ספקים`,
+            description: `${categoryName} - ${productCount} מוצרים בקטגוריה`,
+        },
     };
 }
 
@@ -75,9 +109,25 @@ export default async function CategoryPage({ params }: Props) {
         })
     ];
 
+    const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbs.map((item, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: item.label,
+            item: `${baseUrl}${item.href}`
+        }))
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
 
             <div className="container mx-auto py-8 px-4">
                 <div className="mb-6">

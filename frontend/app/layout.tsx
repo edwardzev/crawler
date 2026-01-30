@@ -14,9 +14,20 @@ const assistant = Assistant({
   subsets: ["hebrew", "latin"],
 });
 
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://example.com").replace(/\/$/, "");
+
 export const metadata: Metadata = {
   title: "קטלוג מוצרים",
   description: "קטלוג מוצרים לספקים",
+  metadataBase: new URL(baseUrl),
+  openGraph: {
+    type: "website",
+    siteName: "קטלוג מוצרים",
+    locale: "he_IL",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

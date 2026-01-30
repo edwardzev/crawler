@@ -2,7 +2,6 @@ import { getCategoriesTree, getProducts } from "@/lib/data";
 import { Header } from "@/components/Header";
 import { CategoryCard } from "@/components/CategoryCard";
 import Link from "next/link";
-import { Product } from "@/lib/types";
 
 export default async function Home() {
   const categories = await getCategoriesTree();
@@ -37,6 +36,18 @@ export default async function Home() {
             <p className="mb-10 text-xl text-slate-400 max-w-lg mr-0">
               הדרך המהירה והמתקדמת ביותר למצוא, לעצב ולהזמין מוצרי קד"מ בהתאמה אישית.
             </p>
+            <div className="flex justify-end gap-6 mb-8">
+              <div className="text-center">
+                <span className="block text-3xl font-bold text-white">{products.length}</span>
+                <span className="text-sm text-slate-400">מוצרים בקטלוג</span>
+              </div>
+              <div className="h-10 w-px bg-slate-800" />
+              <div className="text-center">
+                <span className="block text-3xl font-bold text-white">{new Set(products.map(p => p.supplier)).size}</span>
+                <span className="text-sm text-slate-400">ספקים מובילים</span>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-4">
               <Link href="/c/categories" className="rounded-full bg-white px-8 py-3 font-semibold text-slate-950 transition-transform hover:scale-105 active:scale-95">
                 צפה בכל הקטגוריות
@@ -58,7 +69,10 @@ export default async function Home() {
 
       <div className="container mx-auto px-4 -mt-8">
         <div className="mb-8">
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">קטגוריות מובילות</h2>
+          <div className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <h2 className="text-2xl font-bold text-gray-900">קטגוריות מובילות</h2>
+            <p className="text-sm text-gray-500">סה״כ מוצרים: {products.length}</p>
+          </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {topCategories.map((cat) => (
               <CategoryCard

@@ -34,6 +34,7 @@ class DataPipeline:
                           sku TEXT,
                           category_path TEXT,
                           description TEXT,
+                          color TEXT,
                           properties TEXT,
                           images TEXT,
                           price REAL,
@@ -55,7 +56,8 @@ class DataPipeline:
             new_cols = {
                 'catalog_id': 'TEXT',
                 'sku_clean': 'TEXT',
-                'supplier_slug': 'TEXT'
+                'supplier_slug': 'TEXT',
+                'color': 'TEXT'
             }
             
             for col, dtype in new_cols.items():
@@ -98,8 +100,35 @@ class DataPipeline:
             item_data['product_id'] = item_data['catalog_id']
             item_data['legacy_hash_id'] = generate_legacy_hash_id(supplier, sku, clean_url)
             
+            # Specific cleanup for Comfort (remove HTML)
+            if supplier == 'Comfort' and item_data.get('description'):
+                try:
+                    soup = BeautifulSoup(item_data['description'], 'html.parser')
+                    # Get text with separator to avoid merging lines
+                    text = soup.get_text(separator=' ', strip=True)
+                    item_data['description'] = text
+                except Exception as e:
+                    logger.warning(f"Failed to clean description for {sku}: {e}")
+
             # 3. Stable Content Hash (Excluding timestamps)
             item_data['content_hash'] = generate_content_hash(item_data)
+            
+            # 4. Derive Color from Variants if available
+            # Variants often contain color names. We want to extract them into a string.
+            if item_data.get('variants'):
+                 # We expect variants to be a list of dicts like [{"name": "Red"}, {"name": "Blue"}] or strings (if parser logic changed)
+                 # Based on core.py it's normalized to [{"name": "..."}]
+                 colors = []
+                 for v in item_data['variants']:
+                     if isinstance(v, dict) and 'name' in v:
+                         name = v['name']
+                         # Filter out generic labels often found in Hebrew sites
+                         if name not in ["צבע", "בחר צבע", "בחר", "Color", "Select Color"]:
+                             colors.append(name)
+                 
+                 if colors:
+                     item_data['color'] = ", ".join(sorted(list(set(colors))))
+
             
             # Validate with Pydantic
             product = Product(**item_data)
@@ -149,6 +178,7 @@ class DataPipeline:
                     title=excluded.title,
                     sku=excluded.sku,
                     description=excluded.description,
+                    color=excluded.color,
                     images=excluded.images,
                     url_clean=excluded.url_clean,
                     product_id=excluded.product_id
@@ -224,6 +254,7 @@ class DataPipeline:
                       sku TEXT,
                       category_path TEXT,
                       description TEXT,
+                      color TEXT,
                       properties TEXT,
                       images TEXT,
                       price REAL,

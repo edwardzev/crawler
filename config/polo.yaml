@@ -14,5 +14,6 @@ selectors:
   description: '.description'
   sku: 'p::regex:קוד דגם:\s*([\w-]+)'
   images: '.currentProductImage img::src'
+  color: 'select.color option'
   variants: 'select.color option'
   breadcrumbs: 'nav#breadcrumbs a'

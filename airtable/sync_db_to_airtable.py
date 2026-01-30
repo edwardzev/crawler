@@ -113,6 +113,7 @@ def sync_to_airtable():
                 "product_id": local['catalog_id'], # Convention: supplier:sku
                 "title": local['title'], 
                 "description": local['description'][:10000] if local['description'] else "", 
+                "color": local['color'] if local['color'] else "",
                 "source_url": local['url'],
                 "images": img_list,
                 "image_urls": ""
@@ -147,6 +148,7 @@ def sync_to_airtable():
                 "supplier": SUPPLIER,
                 "title": local['title'],
                 "description": local['description'][:10000] if local['description'] else "",
+                "color": local['color'] if local['color'] else "",
                 "source_url": local['url'],
                 "images": img_list,
                 "image_urls": ""

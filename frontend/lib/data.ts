@@ -63,3 +63,52 @@ async function fileExists(filePath: string) {
         return false;
     }
 }
+
+export function buildCategoryTreeFromProducts(products: Product[]): CategoryNode {
+    const root: CategoryNode = {
+        name: "root",
+        slug: "",
+        count: 0,
+        children: []
+    };
+
+    const categoriesMap = new Map<string, CategoryNode>();
+
+    for (const product of products) {
+        root.count++;
+
+        // Skip products with no category
+        if (!product.category_path || product.category_path.length === 0) continue;
+
+        let currentLevel = root;
+        // Create/Update category nodes
+        for (let i = 0; i < product.category_path.length; i++) {
+            const catName = product.category_path[i];
+            const catSlug = product.category_slug_path?.[i] || "";
+
+            // Build a unique key path for the map
+            const pathKey = product.category_slug_path.slice(0, i + 1).join("/");
+
+            let node = categoriesMap.get(pathKey);
+
+            if (!node) {
+                node = {
+                    name: catName,
+                    slug: catSlug,
+                    count: 0,
+                    children: []
+                };
+                categoriesMap.set(pathKey, node);
+
+                // Add to parent
+                if (!currentLevel.children) currentLevel.children = [];
+                currentLevel.children.push(node);
+            }
+
+            node.count++;
+            currentLevel = node;
+        }
+    }
+
+    return root;
+}

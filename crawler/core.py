@@ -61,6 +61,23 @@ class CrawlerEngine:
             random.shuffle(temp_list)
             self.queue = deque(temp_list)
 
+    def seed_from_db(self):
+        """Seed queue with all URLs currently in the products database"""
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self.pipeline.db_path)
+            cursor = conn.cursor()
+            # Select url or source_url
+            cursor.execute("SELECT url FROM products WHERE url IS NOT NULL")
+            rows = cursor.fetchall()
+            urls = [row[0] for row in rows if row[0].startswith("http")]
+            conn.close()
+            
+            logger.info(f"DB Seeding: Found {len(urls)} product URLs.")
+            self.seed_queue(urls)
+        except Exception as e:
+            logger.error(f"Failed to seed from DB: {e}")
+
     def run(self):
         logger.info(f"Starting multi-threaded crawl with {self.num_workers} workers at {self.base_url}")
         import time
@@ -250,12 +267,16 @@ class CrawlerEngine:
             return False
             
         if is_product:
-            # TEMPORARILY DISABLED: Allow re-crawl to update missing images
-            # sku = self._extract_sku_from_url(url)
-            # with self.lock:
-            #     if sku and sku.upper() in self.visited_skus:
-            #         logger.info(f"Skipping existing SKU: {sku} ({url})")
-            #         return False
+            # Check for incremental mode
+            if self.config.get("incremental", False):
+                sku = self._extract_sku_from_url(url)
+                # If we couldn't extract SKU from URL, we might still crawl to be safe, 
+                # or skip if strict. defaulting to crawl.
+                if sku:
+                   with self.lock:
+                       if sku.upper() in self.visited_skus:
+                           logger.info(f"Skipping existing SKU (Incremental): {sku}")
+                           return False
             return True
             
         if is_category:

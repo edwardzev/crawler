@@ -35,7 +35,14 @@ export function initSearchIndex(products: Product[]) {
         idField: "id",
     });
 
-    miniSearch.addAll(products);
+    const seenIds = new Set();
+    const uniqueProducts = products.filter(p => {
+        if (seenIds.has(p.id)) return false;
+        seenIds.add(p.id);
+        return true;
+    });
+
+    miniSearch.addAll(uniqueProducts);
     return miniSearch;
 }
 

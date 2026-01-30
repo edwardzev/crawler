@@ -1,7 +1,6 @@
 import { getProducts } from "@/lib/data";
 import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { ImageGallery } from "@/components/ImageGallery";
@@ -176,6 +175,12 @@ export default async function ProductPage({ params }: Props) {
                                 <span className="font-bold">מק"ט:</span> {product.sku}
                             </div>
 
+                            {product.color && product.color.trim() !== "" && (
+                                <div className="mb-6 text-lg text-gray-600">
+                                    <span className="font-bold">צבעים:</span> {product.color}
+                                </div>
+                            )}
+
                             <div className="mb-6 text-2xl font-bold text-blue-600">
                                 {product.price ? `₪${product.price.toLocaleString()}` : "מחיר לפי דרישה"}
                             </div>
@@ -207,8 +212,8 @@ export default async function ProductPage({ params }: Props) {
                             )}
 
                             {/* Actions */}
+                            {/* Actions */}
                             <div className="flex flex-col gap-4 border-t pt-8">
-                                <WhatsAppButton product={product} size="lg" className="w-full text-lg" />
 
                                 {product.url && (
                                     <a href={product.url} target="_blank" rel="noopener noreferrer" className="text-center text-sm text-gray-400 hover:text-gray-600 hover:underline">
@@ -222,7 +227,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
 
             <OrderSummary />
-        </div>
+        </div >
     );
 }
 

@@ -12,6 +12,7 @@ class Product(BaseModel):
     sku: Optional[str] = None
     category_path: List[str] = Field(default_factory=list)
     description: Optional[str] = None
+    color: Optional[str] = None
     properties: Dict[str, str] = Field(default_factory=dict)
     images: List[HttpUrl] = Field(default_factory=list)
     price: Optional[float] = None

@@ -3,7 +3,6 @@ import { Sidebar } from "@/components/Sidebar";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Header } from "@/components/Header";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Metadata } from "next";
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://example.com").replace(/\/$/, "");
@@ -140,7 +139,6 @@ export default async function CategoryPage({ params }: Props) {
                         <p className="mt-2 text-gray-500">{filteredProducts.length} מוצרים בקטגוריה</p>
                     </div>
                     <div className="mt-4 md:mt-0">
-                        <WhatsAppButton categoryName={categoryName} label="שאל על קטגוריה זו" />
                     </div>
                 </div>
 

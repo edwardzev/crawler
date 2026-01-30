@@ -1,6 +1,7 @@
 import { getCategoriesTree, getProducts } from "@/lib/data";
 import { Header } from "@/components/Header";
 import { CategoryCard } from "@/components/CategoryCard";
+import { RotatingText } from "@/components/RotatingText";
 import Link from "next/link";
 
 export default async function Home() {
@@ -23,56 +24,42 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
-      <Header />
+      <Header categories={categories} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950 px-4 py-24 text-white">
-        {/* Mesh Gradient Overlay */}
-        <div className="absolute inset-0 z-0 opacity-40">
-          <div className="absolute -left-[10%] -top-[10%] h-[50%] w-[50%] rounded-full bg-blue-600/30 blur-[120px]" />
-          <div className="absolute -right-[10%] -bottom-[10%] h-[50%] w-[50%] rounded-full bg-purple-600/30 blur-[120px]" />
-        </div>
+      <section className="relative overflow-hidden bg-white px-4 py-24 text-center">
+        <div className="container relative z-10 mx-auto max-w-4xl">
+          <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-gray-900 md:text-6xl lg:text-7xl">
+            קטלוג מוצרים מלא <br />
+            <RotatingText />
+          </h1>
+          <p className="mx-auto mb-10 max-w-5xl text-xl text-gray-500">
+            הדרך המהירה והמתקדמת ביותר למצוא, לעצב ולהזמין מוצרי קד"מ.
+            <br className="hidden md:inline" />
+          </p>
 
-        <div className="container relative z-10 mx-auto grid items-center gap-12 md:grid-cols-2">
-          <div className="text-right">
-            <h1 className="mb-6 text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-              קטלוג מוצרים <br />
-              <span className="bg-gradient-to-l from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                לספקים מובילים
-              </span>
-            </h1>
-            <p className="mb-10 text-xl text-slate-400 max-w-lg mr-0">
-              הדרך המהירה והמתקדמת ביותר למצוא, לעצב ולהזמין מוצרי קד"מ בהתאמה אישית.
-            </p>
-            <div className="flex justify-end gap-6 mb-8">
-              <div className="text-center">
-                <span className="block text-3xl font-bold text-white">{products.length}</span>
-                <span className="text-sm text-slate-400">מוצרים בקטלוג</span>
-              </div>
-              <div className="h-10 w-px bg-slate-800" />
-              <div className="text-center">
-                <span className="block text-3xl font-bold text-white">{new Set(products.map(p => p.supplier)).size}</span>
-                <span className="text-sm text-slate-400">ספקים מובילים</span>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <Link href="/c/categories" className="rounded-full bg-white px-8 py-3 font-semibold text-slate-950 transition-transform hover:scale-105 active:scale-95">
-                צפה בכל הקטגוריות
-              </Link>
-            </div>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row mb-12">
+            <Link href="/c/categories" className="rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-blue-200 transition-transform hover:scale-105 hover:bg-blue-700 active:scale-95">
+              צפה בכל הקטגוריות
+            </Link>
           </div>
-          <div className="hidden md:block">
-            <div className="relative aspect-square">
-              <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-3xl" />
-              <img
-                src="/hero-visual.png"
-                alt="Product Catalog"
-                className="relative z-10 h-full w-full object-contain animate-float"
-              />
+
+          <div className="flex justify-center gap-12 text-gray-400 border-t border-gray-100 pt-8 mt-8 max-w-lg mx-auto">
+            <div className="text-center">
+              <span className="block text-3xl font-bold text-gray-900">{products.length}</span>
+              <span className="text-sm">מוצרים בקטלוג</span>
+            </div>
+            <div className="h-10 w-px bg-gray-200" />
+            <div className="text-center">
+              <span className="block text-3xl font-bold text-gray-900">{new Set(products.map(p => p.supplier)).size}</span>
+              <span className="text-sm">ספקים מובילים</span>
             </div>
           </div>
         </div>
+
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-blue-50 blur-3xl opacity-60" />
+        <div className="absolute bottom-0 left-0 -ml-20 h-64 w-64 rounded-full bg-purple-50 blur-3xl opacity-60" />
       </section>
 
       {/* Supplier Logos */}
@@ -83,17 +70,18 @@ export default async function Home() {
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-8">
             {supplierLogos.map((logo) => (
-              <div
+              <Link
                 key={logo.name}
-                className="flex h-14 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-6 shadow-sm"
+                href={`/s/${logo.name.toLowerCase()}`}
+                className="flex h-14 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 hover:border-blue-200"
               >
                 <img
                   src={logo.src}
                   alt={`${logo.name} logo`}
-                  className="h-8 w-auto object-contain opacity-80"
+                  className="h-8 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
                   loading="lazy"
                 />
-              </div>
+              </Link>
             ))}
           </div>
         </div>

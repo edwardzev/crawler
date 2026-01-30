@@ -12,6 +12,8 @@ def main():
     parser = argparse.ArgumentParser(description="Supplier Catalog Crawler")
     parser.add_argument("--config", type=str, help="Path to supplier config YAML")
     parser.add_argument("--sitemap", action="store_true", help="Seed queue from sitemap.xml")
+    parser.add_argument("--incremental", action="store_true", help="Skip already crawled SKUs")
+    parser.add_argument("--recrawl", action="store_true", help="Recrawl ALL URLs existing in the DB (ignore discovery)")
     parser.add_argument("--export", type=str, help="Path to export output (e.g. products.csv)")
     parser.add_argument("--format", type=str, default="csv", choices=["csv", "xlsx", "json"], help="Export format")
     parser.add_argument("--db", type=str, default="products.db", help="Path to SQLite DB")
@@ -39,6 +41,7 @@ def main():
         
     config = load_config(config_path)
     config['db_path'] = db_path
+    config['incremental'] = args.incremental
     
     if not args.no_crawl:
         print(f"Starting crawler for {config.get('supplier', 'Unknown Supplier')}")
@@ -47,7 +50,10 @@ def main():
         engine = CrawlerEngine(config)
         
         # Optional: Load from Sitemap first
-        if args.sitemap:
+        if args.recrawl:
+             print("Recrawl mode: Loading all known product URLs from DB...")
+             engine.seed_from_db()
+        elif args.sitemap:
             print(f"Fetching URLs from sitemap: {config.get('sitemap_url')} ...")
             from crawler.sitemap import SitemapCrawler
             sitemap_crawler = SitemapCrawler(config.get('base_url'))

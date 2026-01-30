@@ -12,6 +12,7 @@ export interface Product {
     category_path: string[];
     category_slug_path: string[];
     description?: string;
+    color?: string;
     properties: Record<string, string>;
     images: string[];
     image_main?: string;

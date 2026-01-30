@@ -34,8 +34,14 @@ class HTMLFetcher:
             self.page = self.context.new_page()
             
             # Apply stealth
-            from playwright_stealth import stealth
-            stealth(self.page)
+            try:
+                from playwright_stealth import stealth
+                stealth(self.page)
+            except (ImportError, TypeError):
+                # Fallback for newer playwright-stealth
+                from playwright_stealth import Stealth
+                stealth = Stealth()
+                stealth.apply_stealth_sync(self.page)
             
             # Set a standard timeout
             self.page.set_default_timeout(30000)

@@ -1,0 +1,290 @@
+[
+  {
+    "major": {
+      "he": "כלי כתיבה ומוצרי נייר",
+      "en": "Writing Instruments & Paper",
+      "slug": "writing-instruments-paper"
+    },
+    "subcategory": {
+      "he": "עטים",
+      "en": "Pens",
+      "slug": "pens"
+    }
+  },
+  {
+    "major": {
+      "he": "כלי כתיבה ומוצרי נייר",
+      "en": "Writing Instruments & Paper",
+      "slug": "writing-instruments-paper"
+    },
+    "subcategory": {
+      "he": "מחברות ומוצרי נייר",
+      "en": "Notebooks & Paper",
+      "slug": "notebooks-paper"
+    }
+  },
+  {
+    "major": {
+      "he": "כלי כתיבה ומוצרי נייר",
+      "en": "Writing Instruments & Paper",
+      "slug": "writing-instruments-paper"
+    },
+    "subcategory": {
+      "he": "ציוד משרדי",
+      "en": "Office Supplies",
+      "slug": "office-supplies"
+    }
+  },
+  {
+    "major": {
+      "he": "תיקים וארנקים",
+      "en": "Bags & Travel",
+      "slug": "bags-travel"
+    },
+    "subcategory": {
+      "he": "תיקי גב",
+      "en": "Backpacks",
+      "slug": "backpacks"
+    }
+  },
+  {
+    "major": {
+      "he": "תיקים וארנקים",
+      "en": "Bags & Travel",
+      "slug": "bags-travel"
+    },
+    "subcategory": {
+      "he": "תיקי צד וכנסים",
+      "en": "Tote & Business Bags",
+      "slug": "tote-business-bags"
+    }
+  },
+  {
+    "major": {
+      "he": "תיקים וארנקים",
+      "en": "Bags & Travel",
+      "slug": "bags-travel"
+    },
+    "subcategory": {
+      "he": "תיקי מחשב",
+      "en": "Laptop Bags",
+      "slug": "laptop-bags"
+    }
+  },
+  {
+    "major": {
+      "he": "תיקים וארנקים",
+      "en": "Bags & Travel",
+      "slug": "bags-travel"
+    },
+    "subcategory": {
+      "he": "נסיעות ומזוודות",
+      "en": "Travel Cases & Luggage",
+      "slug": "travel-luggage"
+    }
+  },
+  {
+    "major": {
+      "he": "בקבוקים ושתייה",
+      "en": "Drinkware",
+      "slug": "drinkware"
+    },
+    "subcategory": {
+      "he": "בקבוקים",
+      "en": "Bottles",
+      "slug": "bottles"
+    }
+  },
+  {
+    "major": {
+      "he": "בקבוקים ושתייה",
+      "en": "Drinkware",
+      "slug": "drinkware"
+    },
+    "subcategory": {
+      "he": "ספלים וכוסות",
+      "en": "Cups & Mugs",
+      "slug": "cups-mugs"
+    }
+  },
+  {
+    "major": {
+      "he": "גאדג'טים וטכנולוגיה",
+      "en": "Gadgets & Tech",
+      "slug": "gadgets-tech"
+    },
+    "subcategory": {
+      "he": "שמע ורמקולים",
+      "en": "Audio & Speakers",
+      "slug": "audio-speakers"
+    }
+  },
+  {
+    "major": {
+      "he": "גאדג'טים וטכנולוגיה",
+      "en": "Gadgets & Tech",
+      "slug": "gadgets-tech"
+    },
+    "subcategory": {
+      "he": "מטענים וסוללות",
+      "en": "Chargers & Batteries",
+      "slug": "chargers-batteries"
+    }
+  },
+  {
+    "major": {
+      "he": "גאדג'טים וטכנולוגיה",
+      "en": "Gadgets & Tech",
+      "slug": "gadgets-tech"
+    },
+    "subcategory": {
+      "he": "אביזרים למחשב וסלולר",
+      "en": "Computer & Mobile Accessories",
+      "slug": "computer-mobile-accessories"
+    }
+  },
+  {
+    "major": {
+      "he": "ביגוד וטקסטיל",
+      "en": "Apparel & Textiles",
+      "slug": "apparel-textiles"
+    },
+    "subcategory": {
+      "he": "ביגוד",
+      "en": "Apparel",
+      "slug": "apparel"
+    }
+  },
+  {
+    "major": {
+      "he": "ביגוד וטקסטיל",
+      "en": "Apparel & Textiles",
+      "slug": "apparel-textiles"
+    },
+    "subcategory": {
+      "he": "כובעים",
+      "en": "Hats & Caps",
+      "slug": "hats-caps"
+    }
+  },
+  {
+    "major": {
+      "he": "ביגוד וטקסטיל",
+      "en": "Apparel & Textiles",
+      "slug": "apparel-textiles"
+    },
+    "subcategory": {
+      "he": "טקסטיל לבית ולחוף",
+      "en": "Home & Beach Textiles",
+      "slug": "home-beach-textiles"
+    }
+  },
+  {
+    "major": {
+      "he": "פנאי, טיולים ובית",
+      "en": "Leisure, Home & Outdoors",
+      "slug": "leisure-home-outdoors"
+    },
+    "subcategory": {
+      "he": "עיצוב הבית",
+      "en": "Home Decor",
+      "slug": "home-decor"
+    }
+  },
+  {
+    "major": {
+      "he": "פנאי, טיולים ובית",
+      "en": "Leisure, Home & Outdoors",
+      "slug": "leisure-home-outdoors"
+    },
+    "subcategory": {
+      "he": "מטבח ואירוח",
+      "en": "Kitchen & Hosting",
+      "slug": "kitchen-hosting"
+    }
+  },
+  {
+    "major": {
+      "he": "פנאי, טיולים ובית",
+      "en": "Leisure, Home & Outdoors",
+      "slug": "leisure-home-outdoors"
+    },
+    "subcategory": {
+      "he": "קמפינג וחוץ",
+      "en": "Camping & Outdoors",
+      "slug": "camping-outdoors"
+    }
+  },
+  {
+    "major": {
+      "he": "פנאי, טיולים ובית",
+      "en": "Leisure, Home & Outdoors",
+      "slug": "leisure-home-outdoors"
+    },
+    "subcategory": {
+      "he": "משחקים ורוגע",
+      "en": "Games & Leisure",
+      "slug": "games-leisure"
+    }
+  },
+  {
+    "major": {
+      "he": "כלי עבודה ושימוש",
+      "en": "Tools & Utility",
+      "slug": "tools-utility"
+    },
+    "subcategory": {
+      "he": "כלי עבודה ידניים",
+      "en": "Hand Tools",
+      "slug": "hand-tools"
+    }
+  },
+  {
+    "major": {
+      "he": "כלי עבודה ושימוש",
+      "en": "Tools & Utility",
+      "slug": "tools-utility"
+    },
+    "subcategory": {
+      "he": "תאורה ופנסים",
+      "en": "Lighting & Flashlights",
+      "slug": "lighting-flashlights"
+    }
+  },
+  {
+    "major": {
+      "he": "כלי עבודה ושימוש",
+      "en": "Tools & Utility",
+      "slug": "tools-utility"
+    },
+    "subcategory": {
+      "he": "כלי מדידה",
+      "en": "Measuring Tools",
+      "slug": "measuring-tools"
+    }
+  },
+  {
+    "major": {
+      "he": "יודאיקה ומתנות",
+      "en": "Judaica & Gifts",
+      "slug": "judaica-gifts"
+    },
+    "subcategory": {
+      "he": "יודאיקה",
+      "en": "Judaica",
+      "slug": "judaica"
+    }
+  },
+  {
+    "major": {
+      "he": "יודאיקה ומתנות",
+      "en": "Judaica & Gifts",
+      "slug": "judaica-gifts"
+    },
+    "subcategory": {
+      "he": "מתנות כלליות",
+      "en": "General Gifts",
+      "slug": "general-gifts"
+    }
+  }
+]

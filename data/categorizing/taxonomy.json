@@ -1,0 +1,646 @@
+[
+    {
+        "he": "כלי כתיבה ומוצרי נייר",
+        "en": "Writing Instruments & Paper",
+        "slug": "writing-instruments-paper",
+        "subcategories": [
+            {
+                "he": "עטים",
+                "en": "Pens",
+                "slug": "pens",
+                "subcategories": [
+                    {
+                        "he": "עטי מתכת",
+                        "en": "Metal Pens",
+                        "slug": "metal-pens"
+                    },
+                    {
+                        "he": "עטי פלסטיק",
+                        "en": "Plastic Pens",
+                        "slug": "plastic-pens"
+                    },
+                    {
+                        "he": "עטי ג'ל ורולר",
+                        "en": "Gel & Roller Pens",
+                        "slug": "gel-roller-pens"
+                    },
+                    {
+                        "he": "עטים יוקרתיים",
+                        "en": "Luxury Pens",
+                        "slug": "luxury-pens"
+                    },
+                    {
+                        "he": "סטים של עטים",
+                        "en": "Pen Sets",
+                        "slug": "pen-sets"
+                    }
+                ]
+            },
+            {
+                "he": "מחברות ומוצרי נייר",
+                "en": "Notebooks & Paper",
+                "slug": "notebooks-paper",
+                "subcategories": [
+                    {
+                        "he": "מחברות A5",
+                        "en": "A5 Notebooks",
+                        "slug": "a5-notebooks"
+                    },
+                    {
+                        "he": "מחברות A4",
+                        "en": "A4 Notebooks",
+                        "slug": "a4-notebooks"
+                    },
+                    {
+                        "he": "מחברות דמוי עור",
+                        "en": "Leather-Look Notebooks",
+                        "slug": "leather-look-notebooks"
+                    },
+                    {
+                        "he": "פנקסים וקוביות ממו",
+                        "en": "Notepads & Memo Cubes",
+                        "slug": "notepads-memo-cubes"
+                    },
+                    {
+                        "he": "יומנים ולוחות שנה",
+                        "en": "Diaries & Calendars",
+                        "slug": "diaries-calendars"
+                    }
+                ]
+            },
+            {
+                "he": "ציוד משרדי",
+                "en": "Office Supplies",
+                "slug": "office-supplies",
+                "subcategories": [
+                    {
+                        "he": "מחשבונים",
+                        "en": "Calculators",
+                        "slug": "calculators"
+                    },
+                    {
+                        "he": "מעמדים שולחניים",
+                        "en": "Desk Organizers",
+                        "slug": "desk-organizers"
+                    },
+                    {
+                        "he": "תיקיות וקלסרים",
+                        "en": "Folders & Binders",
+                        "slug": "folders-binders"
+                    },
+                    {
+                        "he": "סרגלים וכלי מדידה משרדיים",
+                        "en": "Rulers & Measuring Tools",
+                        "slug": "rulers-measuring"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "תיקים וארנקים",
+        "en": "Bags & Travel",
+        "slug": "bags-travel",
+        "subcategories": [
+            {
+                "he": "תיקי גב",
+                "en": "Backpacks",
+                "slug": "backpacks",
+                "subcategories": [
+                    {
+                        "he": "תיקי גב למחשב",
+                        "en": "Laptop Backpacks",
+                        "slug": "laptop-backpacks"
+                    },
+                    {
+                        "he": "תיקי גב אופנתיים",
+                        "en": "Fashion Backpacks",
+                        "slug": "fashion-backpacks"
+                    },
+                    {
+                        "he": "תיקי גב נגד גניבות",
+                        "en": "Anti-Theft Backpacks",
+                        "slug": "anti-theft-backpacks"
+                    }
+                ]
+            },
+            {
+                "he": "תיקי צד וכנסים",
+                "en": "Tote & Business Bags",
+                "slug": "tote-business-bags",
+                "subcategories": [
+                    {
+                        "he": "תיקי צד / שקיות בד",
+                        "en": "Tote Bags",
+                        "slug": "tote-bags"
+                    },
+                    {
+                        "he": "תיקי עסקים ומנהלים",
+                        "en": "Briefcases",
+                        "slug": "briefcases"
+                    },
+                    {
+                        "he": "תיקי כנסים ומסמכים",
+                        "en": "Conference Bags",
+                        "slug": "conference-bags"
+                    },
+                    {
+                        "he": "תיקי אלבד",
+                        "en": "Non-Woven Bags",
+                        "slug": "non-woven-bags"
+                    }
+                ]
+            },
+            {
+                "he": "תיקי מחשב",
+                "en": "Laptop Bags",
+                "slug": "laptop-bags",
+                "subcategories": [
+                    {
+                        "he": "תיקי צד למחשב",
+                        "en": "Laptop Messenger Bags",
+                        "slug": "laptop-messenger-bags"
+                    },
+                    {
+                        "he": "שרוולים למחשב",
+                        "en": "Laptop Sleeves",
+                        "slug": "laptop-sleeves"
+                    }
+                ]
+            },
+            {
+                "he": "נסיעות ומזוודות",
+                "en": "Travel Cases & Luggage",
+                "slug": "travel-luggage",
+                "subcategories": [
+                    {
+                        "he": "מזוודות טרולי",
+                        "en": "Trolley Suitcases",
+                        "slug": "trolley-suitcases"
+                    },
+                    {
+                        "he": "תיקי נסיעות",
+                        "en": "Duffle Bags",
+                        "slug": "duffle-bags"
+                    },
+                    {
+                        "he": "נרתיקים וארגוניות",
+                        "en": "Pouches & Organizers",
+                        "slug": "pouches-organizers"
+                    },
+                    {
+                        "he": "תיקי רחצה",
+                        "en": "Toiletry Bags",
+                        "slug": "toiletry-bags"
+                    },
+                    {
+                        "he": "תגי מזוודה וכיסויי דרכון",
+                        "en": "Luggage Tags & Passport Covers",
+                        "slug": "luggage-tags-passport"
+                    },
+                    {
+                        "he": "ארנקים",
+                        "en": "Wallets",
+                        "slug": "wallets"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "בקבוקים ושתייה",
+        "en": "Drinkware",
+        "slug": "drinkware",
+        "subcategories": [
+            {
+                "he": "בקבוקים",
+                "en": "Bottles",
+                "slug": "bottles",
+                "subcategories": [
+                    {
+                        "he": "בקבוקים תרמיים",
+                        "en": "Thermal Bottles",
+                        "slug": "thermal-bottles"
+                    },
+                    {
+                        "he": "בקבוקי נירוסטה ואלומיניום",
+                        "en": "Metal Bottles",
+                        "slug": "metal-bottles"
+                    },
+                    {
+                        "he": "בקבוקי ספורט",
+                        "en": "Sports Bottles",
+                        "slug": "sports-bottles"
+                    },
+                    {
+                        "he": "בקבוקי זכוכית",
+                        "en": "Glass Bottles",
+                        "slug": "glass-bottles"
+                    }
+                ]
+            },
+            {
+                "he": "ספלים וכוסות",
+                "en": "Cups & Mugs",
+                "slug": "cups-mugs",
+                "subcategories": [
+                    {
+                        "he": "כוסות זכוכית",
+                        "en": "Glass Cups",
+                        "slug": "glass-cups"
+                    },
+                    {
+                        "he": "ספלים תרמיים",
+                        "en": "Travel Mugs",
+                        "slug": "travel-mugs"
+                    },
+                    {
+                        "he": "ספלי קרמיקה",
+                        "en": "Ceramic Mugs",
+                        "slug": "ceramic-mugs"
+                    },
+                    {
+                        "he": "קנקנים וקראפים",
+                        "en": "Jugs & Carafes",
+                        "slug": "jugs-carafes"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "גאדג'טים וטכנולוגיה",
+        "en": "Gadgets & Tech",
+        "slug": "gadgets-tech",
+        "subcategories": [
+            {
+                "he": "שמע ורמקולים",
+                "en": "Audio & Speakers",
+                "slug": "audio-speakers",
+                "subcategories": [
+                    {
+                        "he": "רמקולים בלוטוס",
+                        "en": "Bluetooth Speakers",
+                        "slug": "bluetooth-speakers"
+                    },
+                    {
+                        "he": "אוזניות",
+                        "en": "Headphones",
+                        "slug": "headphones"
+                    }
+                ]
+            },
+            {
+                "he": "מטענים וסוללות",
+                "en": "Chargers & Batteries",
+                "slug": "chargers-batteries",
+                "subcategories": [
+                    {
+                        "he": "מטענים ניידים",
+                        "en": "Power Banks",
+                        "slug": "power-banks"
+                    },
+                    {
+                        "he": "מטענים אלחוטיים",
+                        "en": "Wireless Chargers",
+                        "slug": "wireless-chargers"
+                    },
+                    {
+                        "he": "כבלים ומתאמים",
+                        "en": "Cables & Adapters",
+                        "slug": "cables-adapters"
+                    }
+                ]
+            },
+            {
+                "he": "אביזרים למחשב וסלולר",
+                "en": "Computer & Mobile Accessories",
+                "slug": "computer-mobile-accessories",
+                "subcategories": [
+                    {
+                        "he": "דיסק און קי",
+                        "en": "USB Flash Drives",
+                        "slug": "usb-flash-drives"
+                    },
+                    {
+                        "he": "מעמדים לטלפון",
+                        "en": "Phone Stands",
+                        "slug": "phone-stands"
+                    },
+                    {
+                        "he": "משטחים לעכבר",
+                        "en": "Mouse Pads",
+                        "slug": "mouse-pads"
+                    },
+                    {
+                        "he": "אביזרי רכב טכנולוגיים",
+                        "en": "Car Tech Accessories",
+                        "slug": "car-tech-accessories"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "ביגוד וטקסטיל",
+        "en": "Apparel & Textiles",
+        "slug": "apparel-textiles",
+        "subcategories": [
+            {
+                "he": "ביגוד",
+                "en": "Apparel",
+                "slug": "apparel",
+                "subcategories": [
+                    {
+                        "he": "חולצות",
+                        "en": "T-Shirts & Polos",
+                        "slug": "t-shirts-polos"
+                    },
+                    {
+                        "he": "מעילים וג'קטים",
+                        "en": "Coats & Jackets",
+                        "slug": "coats-jackets"
+                    },
+                    {
+                        "he": "בגדי עבודה",
+                        "en": "Workwear",
+                        "slug": "workwear"
+                    },
+                    {
+                        "he": "וסטים זוהרים",
+                        "en": "Safety Vests",
+                        "slug": "safety-vests"
+                    }
+                ]
+            },
+            {
+                "he": "כובעים",
+                "en": "Hats & Caps",
+                "slug": "hats-caps",
+                "subcategories": [
+                    {
+                        "he": "כובעי מצחיה",
+                        "en": "Caps",
+                        "slug": "caps"
+                    },
+                    {
+                        "he": "כובעי רשת",
+                        "en": "Mesh Caps",
+                        "slug": "mesh-caps"
+                    },
+                    {
+                        "he": "כובעי צמר/חורף",
+                        "en": "Beanies & Winter Hats",
+                        "slug": "beanies-winter-hats"
+                    },
+                    {
+                        "he": "כובעים רחבי שוליים",
+                        "en": "Sun Hats",
+                        "slug": "sun-hats"
+                    }
+                ]
+            },
+            {
+                "he": "טקסטיל לבית ולחוף",
+                "en": "Home & Beach Textiles",
+                "slug": "home-beach-textiles",
+                "subcategories": [
+                    {
+                        "he": "מגבות חוף ורחצה",
+                        "en": "Towels",
+                        "slug": "towels"
+                    },
+                    {
+                        "he": "כרבוליות ושמיכות",
+                        "en": "Blankets & Throws",
+                        "slug": "blankets-throws"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "פנאי, טיולים ובית",
+        "en": "Leisure, Home & Outdoors",
+        "slug": "leisure-home-outdoors",
+        "subcategories": [
+            {
+                "he": "עיצוב הבית",
+                "en": "Home Decor",
+                "slug": "home-decor",
+                "subcategories": [
+                    {
+                        "he": "מסגרות לתמונות",
+                        "en": "Photo Frames",
+                        "slug": "photo-frames"
+                    },
+                    {
+                        "he": "שלטי נוי",
+                        "en": "Decorative Signs",
+                        "slug": "decorative-signs"
+                    },
+                    {
+                        "he": "חפצי נוי קטנים",
+                        "en": "Small Ornaments",
+                        "slug": "small-ornaments"
+                    },
+                    {
+                        "he": "שעוני קיר ושולחן",
+                        "en": "Clocks",
+                        "slug": "clocks"
+                    }
+                ]
+            },
+            {
+                "he": "מטבח ואירוח",
+                "en": "Kitchen & Hosting",
+                "slug": "kitchen-hosting",
+                "subcategories": [
+                    {
+                        "he": "כלי הגשה",
+                        "en": "Servingware",
+                        "slug": "servingware"
+                    },
+                    {
+                        "he": "פותחנים",
+                        "en": "Openers",
+                        "slug": "openers"
+                    },
+                    {
+                        "he": "נרות ומפיצי ריח",
+                        "en": "Candles & Diffusers",
+                        "slug": "candles-diffusers"
+                    }
+                ]
+            },
+            {
+                "he": "קמפינג וחוץ",
+                "en": "Camping & Outdoors",
+                "slug": "camping-outdoors",
+                "subcategories": [
+                    {
+                        "he": "צידניות ותיקים תרמיים",
+                        "en": "Coolers",
+                        "slug": "coolers"
+                    },
+                    {
+                        "he": "ערכות קפה ופיקניק",
+                        "en": "Stoves & Picnic Sets",
+                        "slug": "stoves-picnic-sets"
+                    },
+                    {
+                        "he": "כיסאות ומחצלות",
+                        "en": "Chairs & Mats",
+                        "slug": "chairs-mats"
+                    }
+                ]
+            },
+            {
+                "he": "משחקים ורוגע",
+                "en": "Games & Leisure",
+                "slug": "games-leisure",
+                "subcategories": [
+                    {
+                        "he": "משחקי חשיבה ומנהלים",
+                        "en": "Puzzles & Executive Games",
+                        "slug": "puzzles-executive-games"
+                    },
+                    {
+                        "he": "כדורי לחץ",
+                        "en": "Stress Balls",
+                        "slug": "stress-balls"
+                    },
+                    {
+                        "he": "מוצרי ספורט וכושר",
+                        "en": "Sports & Fitness",
+                        "slug": "sports-fitness"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "כלי עבודה ושימוש",
+        "en": "Tools & Utility",
+        "slug": "tools-utility",
+        "subcategories": [
+            {
+                "he": "כלי עבודה ידניים",
+                "en": "Hand Tools",
+                "slug": "hand-tools",
+                "subcategories": [
+                    {
+                        "he": "אולרים",
+                        "en": "Pocket Knives",
+                        "slug": "pocket-knives"
+                    },
+                    {
+                        "he": "רב-כלים",
+                        "en": "Multi-Tools",
+                        "slug": "multi-tools"
+                    },
+                    {
+                        "he": "סטים של כלי עבודה",
+                        "en": "Tool Sets",
+                        "slug": "tool-sets"
+                    },
+                    {
+                        "he": "פטישים ומברגים",
+                        "en": "Hammers & Screwdrivers",
+                        "slug": "hammers-screwdrivers"
+                    }
+                ]
+            },
+            {
+                "he": "תאורה ופנסים",
+                "en": "Lighting & Flashlights",
+                "slug": "lighting-flashlights",
+                "subcategories": [
+                    {
+                        "he": "פנסים",
+                        "en": "Flashlights",
+                        "slug": "flashlights"
+                    },
+                    {
+                        "he": "פנסי ראש",
+                        "en": "Headlamps",
+                        "slug": "headlamps"
+                    },
+                    {
+                        "he": "תאורת חירום",
+                        "en": "Emergency Lighting",
+                        "slug": "emergency-lighting"
+                    }
+                ]
+            },
+            {
+                "he": "כלי מדידה",
+                "en": "Measuring Tools",
+                "slug": "measuring-tools",
+                "subcategories": [
+                    {
+                        "he": "מטרים וסרטי מדידה",
+                        "en": "Tape Measures",
+                        "slug": "tape-measures"
+                    },
+                    {
+                        "he": "פלסים",
+                        "en": "Levels",
+                        "slug": "levels"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "he": "יודאיקה ומתנות",
+        "en": "Judaica & Gifts",
+        "slug": "judaica-gifts",
+        "subcategories": [
+            {
+                "he": "יודאיקה",
+                "en": "Judaica",
+                "slug": "judaica",
+                "subcategories": [
+                    {
+                        "he": "חמסות",
+                        "en": "Hamsas",
+                        "slug": "hamsas"
+                    },
+                    {
+                        "he": "ברכונים וספרי קודש",
+                        "en": "Blessings & Holy Books",
+                        "slug": "blessings-holy-books"
+                    },
+                    {
+                        "he": "פמוטים ותשמישי קדושה",
+                        "en": "Candlesticks & Ritual Items",
+                        "slug": "candlesticks-ritual-items"
+                    }
+                ]
+            },
+            {
+                "he": "מתנות כלליות",
+                "en": "General Gifts",
+                "slug": "general-gifts",
+                "subcategories": [
+                    {
+                        "he": "מחזיקי מפתחות",
+                        "en": "Keychains",
+                        "slug": "keychains"
+                    },
+                    {
+                        "he": "מציתים",
+                        "en": "Lighters",
+                        "slug": "lighters"
+                    },
+                    {
+                        "he": "תגי שם ומחזיקי תג",
+                        "en": "Name Tags & Badge Holders",
+                        "slug": "name-tags-badge-holders"
+                    }
+                ]
+            }
+        ]
+    }
+]

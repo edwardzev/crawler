@@ -12,3 +12,4 @@ sqlalchemy
 PyYAML
 python-multipart
 cloudinary
+openai

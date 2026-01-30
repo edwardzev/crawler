@@ -20,7 +20,7 @@ category_url_patterns:
 selectors:
   product: "li.product" # Context selector for list items if needed
   title: "h1.product_title"
-  description: ".summary.entry-summary p:not(.sku)"
+  description: ".summary.entry-summary p:not(.sku):not(.price)"
   images: ".woocommerce-product-gallery__image img::src" # Gets main image, gallery often needs JS or specific selectors
   sku: '.sku :: regex:מק"ט:\s*(.*)'
   price: ".price" # Often hidden, but good to have

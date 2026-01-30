@@ -56,8 +56,8 @@ class SitemapCrawler:
 
         # Parsing logic
         def is_product(u):
-            # Match numeric patterns: /123, /123-slug, /product/123
-            return '/product/' in u or re.search(r'/\d+($|[/-])', u)
+            # Match numeric patterns: /123, /123-slug, /product/123, or /AP123
+            return '/product/' in u or re.search(r'/(AP\d+|\d+)($|[/-])', u, re.I)
 
         all_locs = re.findall(r"<loc>(.*?)</loc>", content)
         all_locs = [l.replace('&amp;', '&') for l in all_locs]
@@ -73,7 +73,10 @@ class SitemapCrawler:
             for s_url in sitemaps:
                 try:
                     # For sub-sitemaps, we try requests first, then browser if needed
-                    s_resp = requests.get(s_url, timeout=15)
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                    s_resp = requests.get(s_url, headers=headers, timeout=15)
                     s_content = s_resp.text
                     if "sgcaptcha" in s_content and len(s_content) < 5000:
                         # Skip if blocked for now to keep it fast, or could use browser here too

@@ -1,6 +1,6 @@
 base_url: "https://www.comfort-gifts.com/"
 sitemap_url: "https://www.comfort-gifts.com/sitemap.xml"
-supplier: "Comfort Gifts"
+supplier: "Comfort"
 use_dynamic: true
 num_workers: 2
 sku_url_regex: '(?:^|/)(\d+)[^/]*$'

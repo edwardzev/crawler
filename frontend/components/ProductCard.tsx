@@ -1,18 +1,22 @@
 import Link from "next/link";
 import { Product } from "@/lib/types";
-import { WhatsAppButton } from "./WhatsAppButton";
 
 interface ProductCardProps {
     product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+    const fallbackImage = product.images?.find(
+        (url) => !url.includes("airtableusercontent.com")
+    );
+    const displayImage = fallbackImage || product.image_main || product.images?.[0];
+
     return (
         <div className="group flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             <Link href={`/p/${product.supplier_slug}/${product.sku_clean}/${product.slug}`} className="aspect-square w-full overflow-hidden bg-gray-100 relative">
-                {product.image_main ? (
+                {displayImage ? (
                     <img
-                        src={product.image_main}
+                        src={displayImage}
                         alt={product.title}
                         className="h-full w-full object-contain object-center transition-transform group-hover:scale-105"
                         loading="lazy"
@@ -40,9 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <div className="mb-4 font-bold text-gray-900">
                     {product.price ? `₪${product.price.toLocaleString()}` : "מחיר לפי דרישה"}
                 </div>
-                <div className="mt-auto">
-                    <WhatsAppButton product={product} size="sm" className="w-full" />
-                </div>
+                <div className="mt-auto" />
             </div>
         </div>
     );

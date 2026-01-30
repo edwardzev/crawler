@@ -4,18 +4,27 @@ import time
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv(os.path.join(os.getcwd(), ".env"))
+
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    print("WARNING: OPENAI_API_KEY not found in env. Client init may fail.")
+
 
 # ================= CONFIG =================
 
-OPENAI_MODEL = "gpt-5-mini"   # or gpt-5-mini / whatever you use
+OPENAI_MODEL = "gpt-4o"   # Using high-quality model for best Hebrew taxonomy results
 BATCH_SIZE = 15                # SAFE with stripped text
 MAX_DESC_CHARS = 500
 RETRY_LIMIT = 3
 SLEEP_BETWEEN_CALLS = 0.5
 
 PRODUCTS_FILE = "products.frontend.json"
-TAXONOMY_FILE = "taxonomy_operational_flat.json"
-OUTPUT_CSV = "ai_categories.csv"
+TAXONOMY_FILE = "/Users/edwardzev/crawler/data/categorizing/taxonomy_operational_flat.json"
+OUTPUT_CSV = "/Users/edwardzev/crawler/data/categorizing/ai_categories.csv"
 
 # ==========================================
 
@@ -32,6 +41,8 @@ def resolve_products_path():
         PRODUCTS_FILE,
         "../out/products.frontend.json",
         "../../frontend/public/data/products.frontend.json",
+        "frontend/public/data/products.frontend.json",
+        "/Users/edwardzev/crawler/frontend/public/data/products.frontend.json",
     ]
     for path in candidates:
         try:
@@ -85,17 +96,33 @@ PRODUCTS:
 def classify_batch(taxonomy, batch):
     prompt = build_prompt(taxonomy, batch)
 
+    text = ""
     for attempt in range(RETRY_LIMIT):
         try:
-            response = client.responses.create(
+            response = client.chat.completions.create(
                 model=OPENAI_MODEL,
-                input=prompt
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0
             )
-            text = response.output_text
+            text = response.choices[0].message.content
+            
+            # Strip Markdown if present
+            if text.startswith("```json"):
+                text = text.replace("```json", "").replace("```", "")
+            elif text.startswith("```"):
+                text = text.replace("```", "")
+                
             return json.loads(text)
         except Exception as e:
+            print(f"Match Batch Error (Attempt {attempt+1}): {e}")
+            if text:
+                print(f"RAW OUTPUT START:\n{text[:200]}\nRAW OUTPUT END")
+            
             if attempt == RETRY_LIMIT - 1:
-                raise e
+                print("Skipping batch due to repeated errors.")
+                return []
             time.sleep(2)
 
 def preprocess_products(raw_products):
@@ -113,15 +140,42 @@ def main():
     products = preprocess_products(load_products())
     taxonomy = load_taxonomy()
 
+    # Load existing to skip
+    existing_keys = set()
+    if os.path.exists(OUTPUT_CSV):
+        with open(OUTPUT_CSV, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                existing_keys.add((row["supplier"], row["sku"]))
+    
+    print(f"Found {len(existing_keys)} existing categorizations.")
+    
+    # Filter products
+    to_process = []
+    for p in products:
+        if (p["supplier"], p["sku"]) not in existing_keys:
+            to_process.append(p)
+            
+    print(f"Products to classify: {len(to_process)}")
+    
+    if not to_process:
+        print("Nothing new to classify.")
+        return
+
     results = []
 
-    for i in tqdm(range(0, len(products), BATCH_SIZE)):
-        batch = products[i:i+BATCH_SIZE]
+    for i in tqdm(range(0, len(to_process), BATCH_SIZE)):
+        batch = to_process[i:i+BATCH_SIZE]
         classified = classify_batch(taxonomy, batch)
-        results.extend(classified)
+        if classified:
+             results.extend(classified)
         time.sleep(SLEEP_BETWEEN_CALLS)
 
-    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
+    # Append to CSV
+    file_exists = os.path.exists(OUTPUT_CSV)
+    mode = "a" if file_exists else "w"
+    
+    with open(OUTPUT_CSV, mode, newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
             fieldnames=[
@@ -134,11 +188,13 @@ def main():
                 "ai_confidence"
             ]
         )
-        writer.writeheader()
+        if not file_exists:
+            writer.writeheader()
+        
         for row in results:
             writer.writerow(row)
 
-    print(f"\n✅ Done. Wrote {len(results)} rows to {OUTPUT_CSV}")
+    print(f"\n✅ Done. Appended {len(results)} rows to {OUTPUT_CSV}")
 
 if __name__ == "__main__":
     main()

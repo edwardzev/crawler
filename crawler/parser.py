@@ -20,13 +20,15 @@ class HTMLParser:
             # Check for regex syntax: "selector :: regex:pattern"
             regex_pattern = None
             if ":: regex:" in selector:
-                selector, regex_pattern = selector.split(":: regex:", 1)
-                selector = selector.strip()
-                regex_pattern = regex_pattern.strip()
+                parts = selector.split(":: regex:", 1)
+                selector = parts[0].strip()
+                regex_pattern = parts[1].strip()
 
             # Check for attribute syntax: "selector::attribute"
             if "::" in selector:
-                sel_part, attr = selector.split("::", 1)
+                parts = selector.split("::", 1)
+                sel_part = parts[0].strip()
+                attr = parts[1].strip()
                 elements = self.tree.css(sel_part)
                 if elements:
                     # Apply regex if present
@@ -43,13 +45,18 @@ class HTMLParser:
                     else:
                         values = [el.attributes.get(attr) for el in elements if el.attributes.get(attr)]
 
-                    if field == 'images':
+                    if field in ['images', 'variants']:
                         data[field] = values
                     elif values:
                         data[field] = values[0]
             else:
                 # Special handling for breadcrumb -> category_path (list)
-                    if field == 'breadcrumb':
+                    if field == 'variants':
+                        elements = self.tree.css(selector)
+                        if elements:
+                            data[field] = [el.text(strip=True) for el in elements]
+                            continue
+                    elif field == 'breadcrumb':
                         elements = self.tree.css(selector)
                         if elements:
                             value = [el.text(strip=True) for el in elements]

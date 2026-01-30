@@ -2,6 +2,7 @@ import os
 import sys
 import sqlite3
 import json
+import argparse
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -41,11 +42,13 @@ def init_db(db_path: str):
     conn.commit()
     conn.close()
 
-def get_products(db_path: str):
+def get_products(db_path: str, suppliers: list[str]):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT catalog_id, supplier_slug, sku_clean, images, cloudinary_images FROM products WHERE supplier_slug = 'comfort'")
+    placeholders = ",".join(["?"] * len(suppliers))
+    query = f"SELECT catalog_id, supplier_slug, sku_clean, images, cloudinary_images FROM products WHERE supplier_slug IN ({placeholders})"
+    c.execute(query, suppliers)
     rows = c.fetchall()
     conn.close()
     return rows
@@ -58,10 +61,9 @@ def update_product_images(db_path: str, catalog_id: str, cloud_urls: list):
     conn.commit()
     conn.close()
 
-def upload_images():
-    db_path = "products.db"
+def upload_images(db_path: str, suppliers: list[str], supplier_aliases: dict[str, str]):
     init_db(db_path)
-    rows = get_products(db_path)
+    rows = get_products(db_path, suppliers)
     
     total = len(rows)
     print(f"Found {total} products to process.")
@@ -100,13 +102,14 @@ def upload_images():
             if not img_url: continue
             
             idx_str = f"{idx:02d}"
-            public_id = f"catalog/products/{supplier}/{sku}/{idx_str}"
+            folder_supplier = supplier_aliases.get(supplier, supplier)
+            public_id = f"catalog/products/{folder_supplier}/{sku}/{idx_str}"
             
             try:
                 res = cloudinary.uploader.upload(
                     img_url,
                     public_id=public_id,
-                    overwrite=False, 
+                    overwrite=False,
                     unique_filename=False,
                     resource_type="image"
                 )
@@ -125,4 +128,26 @@ def upload_images():
             if i % 100 == 0: print(f"[{i}/{total}] No images uploaded for {cid}")
 
 if __name__ == "__main__":
-    upload_images()
+    parser = argparse.ArgumentParser(description="Upload product images to Cloudinary")
+    parser.add_argument("--db", default="products.db", help="Path to SQLite DB")
+    parser.add_argument(
+        "--suppliers",
+        default="comfort",
+        help="Comma-separated supplier slugs to process"
+    )
+    parser.add_argument(
+        "--supplier-alias",
+        action="append",
+        default=[],
+        help="Optional mapping in the form from:to (e.g., wave2:wave)"
+    )
+    args = parser.parse_args()
+
+    suppliers = [s.strip() for s in args.suppliers.split(",") if s.strip()]
+    aliases = {}
+    for item in args.supplier_alias:
+        if ":" in item:
+            src, dest = item.split(":", 1)
+            aliases[src.strip()] = dest.strip()
+
+    upload_images(args.db, suppliers, aliases)

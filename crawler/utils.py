@@ -56,10 +56,10 @@ def normalize_url(url: str) -> str:
         # Fallback for very broken URLs
         return url
 
-def generate_product_id(supplier: str, sku: str, url: str) -> str:
+def generate_legacy_hash_id(supplier: str, sku: str, url: str) -> str:
     """
-    Generate stable Product ID using SHA1.
-    Priority: Supplier + Clean SKU -> Supplier + Clean URL
+    DEPRECATED: Generates a hash-based ID.
+    System now uses catalog_id (supplier:sku) for all canonical purposes.
     """
     clean_url = normalize_url(url)
     

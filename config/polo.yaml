@@ -1,0 +1,18 @@
+supplier: polo
+base_url: https://www.polo.co.il
+allowed_domains:
+  - www.polo.co.il
+sitemap_url: https://www.polo.co.il/sitemap.xml
+product_url_patterns:
+  - "regex:/[A-Za-z0-9]+-?[A-Za-z0-9]*/?$"
+sku_url_regex: "/([A-Za-z0-9]+-?[A-Za-z0-9]*)/?$"
+category_url_patterns:
+  - "%D7"
+selectors:
+  product_link: 'a.tablevel_2.width'
+  title: 'h1'
+  description: '.description'
+  sku: 'p::regex:קוד דגם:\s*([\w-]+)'
+  images: '.currentProductImage img::src'
+  variants: 'select.color option'
+  breadcrumbs: 'nav#breadcrumbs a'

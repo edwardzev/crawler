@@ -21,6 +21,6 @@ category_url_patterns:
 selectors:
   title: "h1.product_title"
   description: ".product_body"
-  images: "#thumbGalleryDetail a.lightbox_group::href"
+  images: ".lightbox a.lightbox_group::href"
   sku: 'span.product_makat :: regex:מק"ט:\s*(.*)'
   # price: ".price" # Placeholder, likely not identifying anything as prices are hidden

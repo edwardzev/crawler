@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any
 import logging
 from crawler.models import Product
-from crawler.utils import normalize_url, generate_product_id, generate_content_hash
+from crawler.utils import normalize_url, generate_legacy_hash_id, generate_content_hash
 
 logger = logging.getLogger(__name__)
 
@@ -94,8 +94,9 @@ class DataPipeline:
             item_data['supplier_slug'] = slugify_supplier(supplier)
             item_data['catalog_id'] = generate_catalog_id(supplier, sku)
             
-            # Legacy ID
-            item_data['product_id'] = generate_product_id(supplier, sku, clean_url)
+            # Legacy ID (Keep for DB backward compatibility, but system uses catalog_id)
+            item_data['product_id'] = item_data['catalog_id']
+            item_data['legacy_hash_id'] = generate_legacy_hash_id(supplier, sku, clean_url)
             
             # 3. Stable Content Hash (Excluding timestamps)
             item_data['content_hash'] = generate_content_hash(item_data)
@@ -123,6 +124,10 @@ class DataPipeline:
         data['url'] = str(data['url'])
         if data.get('url_clean'):
              data['url_clean'] = str(data['url_clean'])
+        
+        # Remove legacy_hash_id - column doesn't exist in DB schema
+        if 'legacy_hash_id' in data:
+            del data['legacy_hash_id']
         
         # Upsert using catalog_id
         keys = list(data.keys())
@@ -187,7 +192,8 @@ class DataPipeline:
             supplier = data.get('supplier', 'Unknown')
             sku = data.get('sku')
             
-            new_id = generate_product_id(supplier, sku, clean_url)
+            new_id = generate_catalog_id(supplier, sku)
+            legacy_hash = generate_legacy_hash_id(supplier, sku, clean_url)
             
             # Check conflict
             if new_id in deduped_map:

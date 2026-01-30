@@ -164,6 +164,21 @@ class CrawlerEngine:
                         with self.lock:
                             self.visited_skus.add(product_data['sku'].upper())
 
+                    if product_data.get('variants'):
+                        # Normalize string variants to dicts and filter out placeholders
+                        norm_variants = []
+                        for v in product_data['variants']:
+                            if isinstance(v, str):
+                                if v.strip() in ["צבע", "בחר צבע", "בחר"]:
+                                    continue
+                                norm_variants.append({"name": v.strip()})
+                            else:
+                                norm_variants.append(v)
+                        product_data['variants'] = norm_variants
+
+                    # DEBUG: Log images before saving
+                    logger.info(f"DEBUG: About to save product {product_data.get('sku')} with {len(product_data.get('images', []))} images: {product_data.get('images', [])[:2]}")
+                    
                     self.pipeline.process_item(product_data)
             
             with self.lock:
@@ -235,11 +250,12 @@ class CrawlerEngine:
             return False
             
         if is_product:
-            sku = self._extract_sku_from_url(url)
-            with self.lock:
-                if sku and sku.upper() in self.visited_skus:
-                    logger.info(f"Skipping existing SKU: {sku} ({url})")
-                    return False
+            # TEMPORARILY DISABLED: Allow re-crawl to update missing images
+            # sku = self._extract_sku_from_url(url)
+            # with self.lock:
+            #     if sku and sku.upper() in self.visited_skus:
+            #         logger.info(f"Skipping existing SKU: {sku} ({url})")
+            #         return False
             return True
             
         if is_category:

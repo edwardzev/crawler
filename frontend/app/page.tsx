@@ -7,6 +7,14 @@ export default async function Home() {
   const categories = await getCategoriesTree();
   const products = await getProducts();
 
+  const supplierLogos = [
+    { name: "Comfort", src: "/supplier_logo/comfort_logo.jpg" },
+    { name: "Kraus", src: "/supplier_logo/kraus_logo.png" },
+    { name: "Polo", src: "/supplier_logo/polo_logo.webp" },
+    { name: "Wave", src: "/supplier_logo/wave_logo.png" },
+    { name: "Zeus", src: "/supplier_logo/zeus_logo.png" },
+  ];
+
   // Get top categories (by count)
   const topCategories = categories.children
     .sort((a, b) => b.count - a.count)
@@ -63,6 +71,30 @@ export default async function Home() {
                 className="relative z-10 h-full w-full object-contain animate-float"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Supplier Logos */}
+      <section className="bg-white">
+        <div className="container mx-auto px-4 py-10">
+          <div className="text-right">
+            <p className="text-sm font-semibold text-gray-500">ספקים מובילים</p>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-8">
+            {supplierLogos.map((logo) => (
+              <div
+                key={logo.name}
+                className="flex h-14 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-6 shadow-sm"
+              >
+                <img
+                  src={logo.src}
+                  alt={`${logo.name} logo`}
+                  className="h-8 w-auto object-contain opacity-80"
+                  loading="lazy"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>

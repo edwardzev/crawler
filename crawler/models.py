@@ -24,7 +24,8 @@ class Product(BaseModel):
     catalog_id: str  # New Primary Key
     sku_clean: str
     supplier_slug: str
-    product_id: Optional[str] = None # Legacy ID
+    product_id: Optional[str] = None # Standardized: supplier:sku
+    legacy_hash_id: Optional[str] = None # Old SHA1 ID
     content_hash: str
     first_seen_at: datetime
     last_seen_at: datetime

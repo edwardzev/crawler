@@ -7,19 +7,37 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category }: CategoryCardProps) {
     // Pick a 3D product icon based on keyword matching
+    // Map major categories to 3D abstract icons
     const getProductIcon = (name: string) => {
-        const text = name.toLowerCase();
-        if (text.includes('עט') || text.includes('כתיבה') || text.includes('pen')) return '/abstract/blue-pen.png';
-        if (text.includes('תיק') || text.includes('bag')) return '/abstract/purple-bag.png';
-        if (text.includes('בקבוק') || text.includes('bottle') || text.includes('שתייה')) return '/abstract/green-bottle.png';
-        if (text.includes('מחברת') || text.includes('מכתביות') || text.includes('notebook')) return '/abstract/orange-notebook.png';
-        if (text.includes('קיץ') || text.includes('ים') || text.includes('umbrella') || text.includes('מניפות')) return '/abstract/cyan-umbrella.png';
+        const text = name.trim();
 
-        // Fallback to a consistent hash-based abstract icon if no product match
+        // Explicit mapping for major categories
+        const categoryMap: Record<string, string> = {
+            'כלי כתיבה ומוצרי נייר': '/abstract/blue-pen.png',
+            'יודאיקה ומתנות': '/abstract/cyan-umbrella.png', // Gifts/Leisure
+            'בקבוקים ושתייה': '/abstract/green-bottle.png',
+            'פנאי, טיולים ובית': '/abstract/cyan-umbrella.png', // Leisure/Outdoors
+            'תיקים וארנקים': '/abstract/purple-bag.png',
+            'גאדג\'טים וטכנולוגיה': '/abstract/orange-notebook.png', // Tech/Office
+            'ביגוד וטקסטיל': '/abstract/purple-bag.png', // Fashion/Textile
+            'כלי עבודה ושימוש': '/abstract/green-bottle.png', // Tools (utility)
+            'UNCLASSIFIED': '/abstract/cyan-umbrella.png'
+        };
+
+        if (categoryMap[text]) return categoryMap[text];
+
+        // Keyword fallback for subcategories or others
+        const lower = text.toLowerCase();
+        if (lower.includes('עט') || lower.includes('כתיבה')) return '/abstract/blue-pen.png';
+        if (lower.includes('תיק')) return '/abstract/purple-bag.png';
+        if (lower.includes('בקבוק') || lower.includes('שתייה')) return '/abstract/green-bottle.png';
+        if (lower.includes('מחברת') || lower.includes('נייר')) return '/abstract/orange-notebook.png';
+
+        // Hash fallback
         const icons = ['blue-pen', 'purple-bag', 'green-bottle', 'orange-notebook', 'cyan-umbrella'];
         let hash = 0;
-        for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        for (let i = 0; i < text.length; i++) {
+            hash = text.charCodeAt(i) + ((hash << 5) - hash);
         }
         const index = Math.abs(hash) % icons.length;
         return `/abstract/${icons[index]}.png`;

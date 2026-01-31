@@ -63,8 +63,11 @@ export function ProductFilters({ products, onFilterChange }: ProductFiltersProps
     // Apply filters
     useEffect(() => {
         const filtered = products.filter(product => {
-            // Price filter
-            const price = product.price ?? 0;
+            // Price filter - only include products with valid prices
+            const price = product.price;
+            if (typeof price !== 'number' || price <= 0) {
+                return false;
+            }
             if (price < filterState.priceMin || price > filterState.priceMax) {
                 return false;
             }

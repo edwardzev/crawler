@@ -1,6 +1,6 @@
 import { getProducts, buildCategoryTreeFromProducts } from "@/lib/data";
 import { Header } from "@/components/Header";
-import { ProductGrid } from "@/components/ProductGrid";
+import { CategoryContent } from "@/components/CategoryContent";
 import { CategoryCard } from "@/components/CategoryCard";
 import { Metadata } from "next";
 
@@ -120,7 +120,7 @@ export default async function SupplierPage({ params }: Props) {
                 <div className="mb-8">
                     <h2 className="text-2xl font-bold text-gray-900">כל המוצרים של {displayName}</h2>
                 </div>
-                <ProductGrid products={supplierProducts} />
+                <CategoryContent products={supplierProducts} />
             </section>
         </div>
     );

@@ -82,6 +82,21 @@ class FrontendExporter:
         search_parts = [title, sku] + category_path + list(properties.keys()) + list(properties.values())
         search_blob = " ".join([str(p) for p in search_parts if p])
         
+        # Parse variant field (NEW: for ordering flow)
+        # Variant is expected to be a JSON string in Airtable with structure:
+        # {"type": "color", "options": [{"value": "black", "label": "Black"}, ...]}
+        variant = None
+        variant_raw = raw.get('variant')
+        if variant_raw:
+            try:
+                variant_parsed = self._parse_json_field(variant_raw, None)
+                # Validate structure
+                if variant_parsed and isinstance(variant_parsed, dict):
+                    if 'type' in variant_parsed and 'options' in variant_parsed:
+                        variant = variant_parsed
+            except Exception as e:
+                logger.warning(f"Failed to parse variant for product {sku}: {e}")
+        
         return {
             "id": raw.get('catalog_id') or raw.get('product_id'), # Prefer new ID
             "catalog_id": raw.get('catalog_id'),
@@ -103,6 +118,7 @@ class FrontendExporter:
             "currency": raw.get('currency'),
             "availability": raw.get('availability'),
             "variants": variants,
+            "variant": variant,  # NEW: Parsed variant for ordering flow
             "content_hash": raw.get('content_hash'),
             "first_seen_at": str(raw.get('first_seen_at')),
             "last_seen_at": str(raw.get('last_seen_at')),

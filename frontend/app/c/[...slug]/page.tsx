@@ -1,6 +1,6 @@
 import { getCategoriesTree, getFlatCategories, getProducts } from "@/lib/data";
 import { Sidebar } from "@/components/Sidebar";
-import { ProductGrid } from "@/components/ProductGrid";
+import { CategoryContent } from "@/components/CategoryContent";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Header } from "@/components/Header";
 import { Metadata } from "next";
@@ -147,9 +147,7 @@ export default async function CategoryPage({ params }: Props) {
                         <Sidebar tree={categoriesTree} />
                     </div>
 
-                    <div className="flex-1">
-                        <ProductGrid products={filteredProducts} />
-                    </div>
+                    <CategoryContent products={filteredProducts} />
                 </div>
             </div>
         </div>

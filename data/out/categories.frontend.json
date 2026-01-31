@@ -1,0 +1,19 @@
+{
+  "name": "root",
+  "slug": "",
+  "children": [
+    {
+      "name": "Clothing",
+      "slug": "clothing",
+      "count": 1,
+      "children": [
+        {
+          "name": "T-Shirts",
+          "slug": "t-shirts",
+          "count": 1,
+          "children": []
+        }
+      ]
+    }
+  ]
+}

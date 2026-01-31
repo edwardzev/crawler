@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 // Fabric 5 import:
 import { fabric } from "fabric";
 import { Upload, RefreshCcw, Share2, Save, Download, Sparkles, X, Image as ImageIcon, Check } from "lucide-react";
-import { Product } from "@/lib/types";
+import { Product, ProductVariant, SelectedVariant } from "@/lib/types";
 import { removeBackground, preload } from "@imgly/background-removal";
 import { useOrder } from "@/lib/hooks/useOrder";
 import { useToast } from "@/lib/contexts/ToastContext";
@@ -42,6 +42,28 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
     // Image Selection
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const availableImages = product.images || (product.image_main ? [product.image_main] : []);
+
+    // Variant Selection
+    const [selectedVariant, setSelectedVariant] = useState<SelectedVariant | null>(null);
+    
+    // Parse variant from product if present
+    const productVariant: ProductVariant | null = (() => {
+        if (!product.variant) return null;
+        try {
+            // Handle if variant is already parsed or is a JSON string
+            const parsed = typeof product.variant === 'string' 
+                ? JSON.parse(product.variant) 
+                : product.variant;
+            
+            // Validate structure
+            if (parsed && parsed.type && Array.isArray(parsed.options)) {
+                return parsed as ProductVariant;
+            }
+        } catch (e) {
+            console.error('Failed to parse product variant:', e);
+        }
+        return null;
+    })();
 
     // Preload AI Model on mount
     useEffect(() => {
@@ -378,6 +400,12 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
             return;
         }
 
+        // Validate variant selection if product has variants
+        if (productVariant && !selectedVariant) {
+            showToast("אנא בחר צבע לפני הוספה לסל", "error");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -398,7 +426,8 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
                     width: widthCm,
                     quantity: quantity,
                     logo_src: logoSrc,
-                    mockup_src: mockupSrc
+                    mockup_src: mockupSrc,
+                    variant: selectedVariant || undefined
                 },
                 logoBlob,
                 mockupBlob
@@ -477,6 +506,40 @@ export default function MockupEditor({ product, initialState, readOnly = false, 
                 {/* Controls Panel */}
                 {!readOnly && (
                     <div className="w-full lg:w-72 flex flex-col gap-4">
+                        {/* Variant Selector - Only show if product has variants */}
+                        {productVariant && (
+                            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 space-y-3">
+                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                                    <span className="text-lg">🎨</span>
+                                    בחירת צבע
+                                </h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {productVariant.options.map((option) => (
+                                        <button
+                                            key={option.value}
+                                            onClick={() => setSelectedVariant({
+                                                type: productVariant.type,
+                                                value: option.value,
+                                                label: option.label
+                                            })}
+                                            className={`px-4 py-3 rounded-lg border-2 transition-all font-medium text-sm ${
+                                                selectedVariant?.value === option.value
+                                                    ? 'border-blue-600 bg-blue-100 text-blue-900 ring-2 ring-blue-200'
+                                                    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                                            }`}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                {!selectedVariant && (
+                                    <p className="text-xs text-red-600 animate-pulse">
+                                        * בחירת צבע חובה
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
                             <h4 className="font-bold text-gray-700 text-sm">פרטי הזמנה</h4>
                             <div className="grid grid-cols-2 gap-3">

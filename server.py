@@ -230,7 +230,10 @@ async def add_order_item(
     logo: UploadFile = File(...),
     mockup: UploadFile = File(...),
     product_title: str = Form(...),
-    sku: str = Form(...)
+    sku: str = Form(...),
+    variant_type: str = Form(None),
+    variant_value: str = Form(None),
+    variant_label: str = Form(None)
 ):
     """Step 2: Upload files to Cloudinary and update specific slot in Airtable."""
     if slot_index < 1 or slot_index > 5:
@@ -283,22 +286,62 @@ async def add_order_item(
         f"Number {slot_index}": quantity
     }
     
-    # Notes to Design: Structured header
-    # We first need to get existing notes to append? 
-    # Or just patch. Airtable patch doesn't append strings easily without reading first.
-    # The requirement says "Frontend tracks usage", but notes are order-level.
-    # We'll try to get existing record first to append notes.
+    # Notes to Design: Structured format per requirements
+    # Format:
+    # [PRODUCT]
+    # SKU: <sku>
+    # Name: <product name>
+    # Variant: <color or "N/A">
+    # 
+    # [GRAPHIC]
+    # Slot: <N>
+    # Width: <cm>
+    # Quantity: <qty>
+    
     try:
         r_get = requests.get(f"{AIRTABLE_API_URL}/{order_id}", headers=headers)
         r_get.raise_for_status()
         current_data = r_get.json()
         old_notes = current_data.get("fields", {}).get("Notes to Design", "")
         
-        new_entry = f"[PRODUCT: {product_title} | SKU: {sku} | QTY: {quantity}]\n"
-        fields["Notes to Design"] = (old_notes + "\n" + new_entry).strip()
+        # Build structured entry
+        variant_str = "N/A"
+        if variant_type and variant_value and variant_label:
+            variant_str = f"{variant_label} ({variant_value})"
+        
+        new_entry = f"""[PRODUCT]
+SKU: {sku}
+Name: {product_title}
+Variant: {variant_str}
+
+[GRAPHIC]
+Slot: {slot_index}
+Width: {width} cm
+Quantity: {quantity}
+"""
+        
+        # Append with separator
+        separator = "\n" + "="*40 + "\n"
+        if old_notes.strip():
+            fields["Notes to Design"] = old_notes + separator + new_entry
+        else:
+            fields["Notes to Design"] = new_entry
     except:
         # Fallback if GET fails
-        fields["Notes to Design"] = f"[PRODUCT: {product_title} | SKU: {sku} | QTY: {quantity}]"
+        variant_str = "N/A"
+        if variant_type and variant_value and variant_label:
+            variant_str = f"{variant_label} ({variant_value})"
+        
+        fields["Notes to Design"] = f"""[PRODUCT]
+SKU: {sku}
+Name: {product_title}
+Variant: {variant_str}
+
+[GRAPHIC]
+Slot: {slot_index}
+Width: {width} cm
+Quantity: {quantity}
+"""
 
     try:
         r = requests.patch(f"{AIRTABLE_API_URL}/{order_id}", headers=headers, json={"fields": fields})

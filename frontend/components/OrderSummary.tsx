@@ -57,6 +57,11 @@ export function OrderSummary() {
                             <div className="flex-1 min-w-0">
                                 <h4 className="text-xs font-bold text-gray-800 truncate">{item.product_title}</h4>
                                 <p className="text-[10px] text-gray-500">מק"ט: {item.sku}</p>
+                                {item.variant && (
+                                    <p className="text-[10px] text-blue-600 font-medium">
+                                        צבע: {item.variant.label}
+                                    </p>
+                                )}
                             </div>
                             <div className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-md h-fit">
                                 סלוט {item.slot_index}

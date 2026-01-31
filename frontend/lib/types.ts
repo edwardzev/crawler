@@ -1,3 +1,14 @@
+// Variant Types
+export interface VariantOption {
+    value: string;
+    label: string;
+}
+
+export interface ProductVariant {
+    type: 'color'; // Currently only color, future: size, etc.
+    options: VariantOption[];
+}
+
 export interface Product {
     id: string; // Will now be catalog_id
     catalog_id: string;
@@ -19,11 +30,18 @@ export interface Product {
     price?: number;
     currency?: string;
     availability?: string;
-    variants?: any[];
+    variants?: any[]; // Raw variant data from DB
+    variant?: ProductVariant | null; // Parsed variant field (JSON)
     content_hash?: string;
     first_seen_at?: string;
     last_seen_at?: string;
     search_blob?: string;
+}
+
+export interface SelectedVariant {
+    type: 'color';
+    value: string;
+    label: string;
 }
 
 export interface OrderItem {
@@ -35,6 +53,7 @@ export interface OrderItem {
     quantity: number;
     logo_src: string;
     mockup_src: string;
+    variant?: SelectedVariant | null; // Selected variant for this graphic
 }
 
 export interface OrderState {

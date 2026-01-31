@@ -1,0 +1,22 @@
+[
+  {
+    "path": [
+      "Clothing"
+    ],
+    "slug_path": [
+      "clothing"
+    ],
+    "count": 1
+  },
+  {
+    "path": [
+      "Clothing",
+      "T-Shirts"
+    ],
+    "slug_path": [
+      "clothing",
+      "t-shirts"
+    ],
+    "count": 1
+  }
+]

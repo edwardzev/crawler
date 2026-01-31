@@ -1,0 +1,59 @@
+[
+  {
+    "id": "test-supplier:tshirt-001",
+    "catalog_id": "test-supplier:tshirt-001",
+    "sku_clean": "tshirt-001",
+    "supplier_slug": "test-supplier",
+    "supplier": "Test Supplier",
+    "url": "https://example.com/tshirt-001",
+    "url_clean": "https://example.com/tshirt-001",
+    "slug": "premium-cotton-t-shirt-tshirt-001",
+    "title": "Premium Cotton T-Shirt",
+    "sku": "TSHIRT-001",
+    "category_path": [
+      "Clothing",
+      "T-Shirts"
+    ],
+    "category_slug_path": [
+      "clothing",
+      "t-shirts"
+    ],
+    "description": "High-quality cotton t-shirt available in multiple colors",
+    "properties": {
+      "Material": "100% Cotton",
+      "Weight": "180 GSM",
+      "Fit": "Regular"
+    },
+    "images": [
+      "https://via.placeholder.com/400/000000/FFFFFF?text=Black",
+      "https://via.placeholder.com/400/FFFFFF/000000?text=White",
+      "https://via.placeholder.com/400/000080/FFFFFF?text=Navy"
+    ],
+    "image_main": "https://via.placeholder.com/400/000000/FFFFFF?text=Black",
+    "price": 49.9,
+    "currency": "ILS",
+    "availability": "In Stock",
+    "variants": [],
+    "variant": {
+      "type": "color",
+      "options": [
+        {
+          "value": "black",
+          "label": "שחור"
+        },
+        {
+          "value": "white",
+          "label": "לבן"
+        },
+        {
+          "value": "navy",
+          "label": "כחול נייבי"
+        }
+      ]
+    },
+    "content_hash": "test-hash-001",
+    "first_seen_at": "None",
+    "last_seen_at": "None",
+    "search_blob": "Premium Cotton T-Shirt TSHIRT-001 Clothing T-Shirts Material Weight Fit 100% Cotton 180 GSM Regular"
+  }
+]

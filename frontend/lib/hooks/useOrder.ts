@@ -74,6 +74,13 @@ export function useOrder() {
         formData.append("mockup", mockupBlob, "mockup.png");
         formData.append("product_title", itemData.product_title);
         formData.append("sku", itemData.sku);
+        
+        // Add variant data if present
+        if (itemData.variant) {
+            formData.append("variant_type", itemData.variant.type);
+            formData.append("variant_value", itemData.variant.value);
+            formData.append("variant_label", itemData.variant.label);
+        }
 
         const res = await fetch('/api/order/add-item', {
             method: 'POST',

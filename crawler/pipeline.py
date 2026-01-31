@@ -41,6 +41,7 @@ class DataPipeline:
                           currency TEXT,
                           availability TEXT,
                           variants TEXT,
+                          variant TEXT,
                           raw TEXT,
                           content_hash TEXT,
                           first_seen_at TIMESTAMP,
@@ -57,7 +58,8 @@ class DataPipeline:
                 'catalog_id': 'TEXT',
                 'sku_clean': 'TEXT',
                 'supplier_slug': 'TEXT',
-                'color': 'TEXT'
+                'color': 'TEXT',
+                'variant': 'TEXT'  # JSON field for Airtable variant data
             }
             
             for col, dtype in new_cols.items():
@@ -261,6 +263,7 @@ class DataPipeline:
                       currency TEXT,
                       availability TEXT,
                       variants TEXT,
+                      variant TEXT,
                       raw TEXT,
                       content_hash TEXT,
                       first_seen_at TIMESTAMP,
